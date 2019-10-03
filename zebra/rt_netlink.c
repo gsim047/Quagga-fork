@@ -45,6 +45,11 @@
 
 #include "rt_netlink.h"
 
+
+int interface_lookup_netlink (void);
+int netlink_route_read (void);
+
+
 /* Socket interface to kernel */
 struct nlsock
 {
@@ -1273,7 +1278,7 @@ rta_addattr_l (struct rtattr *rta, int maxlen, int type, void *data, int alen)
 
   len = RTA_LENGTH (alen);
 
-  if (RTA_ALIGN (rta->rta_len) + len > maxlen)
+  if ((int)RTA_ALIGN (rta->rta_len) + len > maxlen)
     return -1;
 
   subrta = (struct rtattr *) (((char *) rta) + RTA_ALIGN (rta->rta_len));

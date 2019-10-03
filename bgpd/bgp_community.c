@@ -302,7 +302,8 @@ community_intern (struct community *com)
   assert (com->refcnt == 0);
 
   /* Lookup community hash. */
-  find = (struct community *) hash_get (comhash, com, hash_alloc_intern);
+//  find = (struct community *) hash_get (comhash, com, hash_alloc_intern);
+  find = (struct community *) hash_get2 (comhash, com, com);
 
   /* Arguemnt com is allocated temporary.  So when it is not used in
      hash, it should be freed.  */
@@ -392,7 +393,7 @@ community_str (struct community *com)
 /* Make hash value of community attribute. This function is used by
    hash package.*/
 unsigned int
-community_hash_make (struct community *com)
+community_hash_make (const struct community *com)
 {
   unsigned char *pnt = (unsigned char *)com->val;
   int size = com->size * 4;
@@ -637,7 +638,7 @@ community_hash (void)
 void
 community_init (void)
 {
-  comhash = hash_create ((unsigned int (*) (void *))community_hash_make,
+  comhash = hash_create ((unsigned int (*) (const void *))community_hash_make,
 			 (int (*) (const void *, const void *))community_cmp);
 }
 

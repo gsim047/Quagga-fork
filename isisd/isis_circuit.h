@@ -135,6 +135,8 @@ struct isis_circuit
   u_int32_t rej_adjacencies;	/* rejectedAdjacencies */
 };
 
+struct vty;
+
 void isis_circuit_init (void);
 struct isis_circuit *isis_circuit_new (void);
 void isis_circuit_del (struct isis_circuit *circuit);

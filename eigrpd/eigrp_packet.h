@@ -33,6 +33,19 @@
 #ifndef _ZEBRA_EIGRP_PACKET_H
 #define _ZEBRA_EIGRP_PACKET_H
 
+struct thread;
+struct vty;
+struct eigrp_packet;
+struct eigrp_neighbor;
+struct eigrp_interface;
+struct stream;
+struct eigrp_fifo;
+struct eigrp_prefix_entry;
+struct eigrp;
+struct ip;
+struct eigrp_header;
+
+
 /*Prototypes*/
 extern int eigrp_read (struct thread *);
 extern int eigrp_write (struct thread *);

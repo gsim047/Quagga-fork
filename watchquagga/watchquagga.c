@@ -328,35 +328,39 @@ DEFAULT_PERIOD,DEFAULT_TIMEOUT,DEFAULT_RESTART_TIMEOUT,DEFAULT_PIDFILE);
   return status;
 }
 
+
 static pid_t
 run_background(const char *shell_cmd)
 {
-  pid_t child;
+	pid_t child;
 
-  switch (child = fork())
-    {
-    case -1:
-      zlog_err("fork failed, cannot run command [%s]: %s",
-	       shell_cmd,safe_strerror(errno));
-      return -1;
-    case 0:
-      /* Child process. */
-      /* Use separate process group so child processes can be killed easily. */
-      if (setpgid(0,0) < 0)
-        zlog_warn("warning: setpgid(0,0) failed: %s",safe_strerror(errno));
-      {
-        const char *argv[4] = { "sh", "-c", shell_cmd, NULL};
-	execv("/bin/sh",(char *const *)argv);
-	zlog_err("execv(/bin/sh -c '%s') failed: %s",
-		 shell_cmd,safe_strerror(errno));
-	_exit(127);
-      }
-    default:
-      /* Parent process: we will reap the child later. */
-      zlog_err("Forked background command [pid %d]: %s",(int)child,shell_cmd);
-      return child;
-    }
-}
+	switch (child = fork())
+	{
+	case -1:
+		zlog_err("fork failed, cannot run command [%s]: %s",
+		         shell_cmd,safe_strerror(errno));
+		return -1;
+	case 0:
+		/* Child process. */
+		/* Use separate process group so child processes can be killed easily. */
+		if (setpgid(0,0) < 0)
+			zlog_warn("warning: setpgid(0,0) failed: %s",safe_strerror(errno));
+		{
+//        const char *argv[4] = { "sh", "-c", shell_cmd, NULL};
+//			argv[2] = shell_cmd;
+//	execv("/bin/sh",(char *const *)argv);
+			execl("/bin/sh", "sh", "-c", shell_cmd, NULL);
+			zlog_err("execv(/bin/sh -c '%s') failed: %s",
+		 	shell_cmd,safe_strerror(errno));
+			_exit(127);
+		}
+	default:
+		/* Parent process: we will reap the child later. */
+		zlog_err("Forked background command [pid %d]: %s",(int)child,shell_cmd);
+		return child;
+	}
+}// run_background
+
 
 static struct timeval *
 time_elapsed(struct timeval *result, const struct timeval *start_time)

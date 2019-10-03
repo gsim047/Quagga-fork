@@ -37,6 +37,9 @@ struct if_rmap
   char *routemap[IF_RMAP_MAX];
 };
 
+struct vty;
+
+
 extern void if_rmap_init (int);
 extern void if_rmap_reset (void);
 extern void if_rmap_hook_add (void (*) (struct if_rmap *));

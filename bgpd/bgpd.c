@@ -3763,8 +3763,9 @@ peer_distribute_unset (struct peer *peer, afi_t afi, safi_t safi, int direct)
   filter->dlist[direct].name = NULL;
   filter->dlist[direct].alist = NULL;
 
-  if (! CHECK_FLAG (peer->sflags, PEER_STATUS_GROUP))
+  if (! CHECK_FLAG (peer->sflags, PEER_STATUS_GROUP)){
     return 0;
+  }
 
     group = peer->group;
     for (ALL_LIST_ELEMENTS (group->peer, node, nnode, peer))

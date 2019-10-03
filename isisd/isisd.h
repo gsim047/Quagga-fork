@@ -140,6 +140,9 @@ struct isis_area
 #endif /* TOPOLOGY_GENERATE */
 };
 
+
+struct vty;
+
 void isis_init (void);
 void isis_new(unsigned long);
 struct isis_area *isis_area_create(const char *);

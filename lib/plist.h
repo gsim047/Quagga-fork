@@ -65,6 +65,8 @@ struct orf_prefix
 };
 
 /* Prototypes. */
+struct vty;
+
 extern void prefix_list_init (void);
 extern void prefix_list_reset (void);
 extern void prefix_list_add_hook (void (*func) (struct prefix_list *));

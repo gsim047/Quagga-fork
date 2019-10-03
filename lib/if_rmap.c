@@ -60,13 +60,14 @@ if_rmap_free (struct if_rmap *if_rmap)
 struct if_rmap *
 if_rmap_lookup (const char *ifname)
 {
-  struct if_rmap key;
+//  const struct if_rmap key = { ifname };
   struct if_rmap *if_rmap;
 
   /* temporary copy */
-  key.ifname = (char *)ifname;
+//  key.ifname = /*(char *)*/ifname;
 
-  if_rmap = hash_lookup (ifrmaphash, &key);
+//  if_rmap = hash_lookup (ifrmaphash, &key);
+  if_rmap = hash_lookup (ifrmaphash, ifname);
   
   return if_rmap;
 }
@@ -84,9 +85,9 @@ if_rmap_hook_delete (void (*func) (struct if_rmap *))
 }
 
 static void *
-if_rmap_hash_alloc (void *arg)
+if_rmap_hash_alloc (const void *arg)
 {
-  struct if_rmap *ifarg = arg;
+  const struct if_rmap *ifarg = arg;
   struct if_rmap *if_rmap;
 
   if_rmap = if_rmap_new ();
@@ -98,16 +99,17 @@ if_rmap_hash_alloc (void *arg)
 static struct if_rmap *
 if_rmap_get (const char *ifname)
 {
-  struct if_rmap key;
+//  struct if_rmap key;
 
   /* temporary copy */
-  key.ifname = (char *)ifname;
+//  key.ifname = (char *)ifname;
 
-  return (struct if_rmap *) hash_get (ifrmaphash, &key, if_rmap_hash_alloc);
+//  return (struct if_rmap *) hash_get (ifrmaphash, &key, if_rmap_hash_alloc);
+  return (struct if_rmap *) hash_get (ifrmaphash, ifname, if_rmap_hash_alloc);
 }
 
 static unsigned int
-if_rmap_hash_make (void *data)
+if_rmap_hash_make (const void *data)
 {
   const struct if_rmap *if_rmap = data;
 

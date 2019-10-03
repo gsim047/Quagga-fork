@@ -132,19 +132,19 @@ eigrp_nbr_get (struct eigrp_interface *ei, struct eigrp_header *eigrph,
 struct eigrp_neighbor *
 eigrp_nbr_lookup_by_addr (struct eigrp_interface *ei, struct in_addr *addr)
 {
-  struct eigrp_neighbor *nbr;
-  struct listnode *node, *nnode;
+	struct eigrp_neighbor *nbr;
+	struct listnode *node, *nnode;
 
-  for (ALL_LIST_ELEMENTS (ei->nbrs, node, nnode, nbr))
-      {
-        if (addr == nbr->src.s_addr)
-          {
-            return nbr;
-          }
-      }
+	for (ALL_LIST_ELEMENTS (ei->nbrs, node, nnode, nbr))
+	{
+		if (addr->s_addr == nbr->src.s_addr)
+		{
+			return nbr;
+		}
+	}
 
-  return NULL;
-}
+	return NULL;
+}// eigrp_nbr_lookup_by_addr
 
 /**
  * @fn eigrp_nbr_lookup_by_addr_process
@@ -264,28 +264,28 @@ eigrp_nbr_state_set (struct eigrp_neighbor *nbr, u_char state)
 const char *
 eigrp_nbr_state_str (struct eigrp_neighbor *nbr)
 {
-  const char *state;
-  switch (nbr->state)
-    {
-    case EIGRP_NEIGHBOR_DOWN:
-      {
-	state = "Down";
-	break;
-      }
-    case EIGRP_NEIGHBOR_PENDING:
-      {
-	state = "Waiting for Init";
-	break;
-      }
-    case EIGRP_NEIGHBOR_UP:
-      {
-	state = "Up";
-	break;
-      }
-    }
+	const char *state = NULL;
+	switch (nbr->state)
+	{
+		case EIGRP_NEIGHBOR_DOWN:
+		{
+			state = "Down";
+			break;
+		}
+		case EIGRP_NEIGHBOR_PENDING:
+		{
+			state = "Waiting for Init";
+			break;
+		}
+		case EIGRP_NEIGHBOR_UP:
+		{
+			state = "Up";
+			break;
+		}
+	}
 
-  return(state);
-}
+	return(state);
+}// eigrp_nbr_state_st
 
 void
 eigrp_nbr_state_update (struct eigrp_neighbor *nbr)

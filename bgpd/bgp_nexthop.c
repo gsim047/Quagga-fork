@@ -553,9 +553,9 @@ struct bgp_addr
 static struct hash *bgp_address_hash;
 
 static void *
-bgp_address_hash_alloc (void *p)
+bgp_address_hash_alloc (const void *p)
 {
-  struct in_addr *val = p;
+  const struct in_addr *val = p;
   struct bgp_addr *addr;
 
   addr = XMALLOC (MTYPE_BGP_ADDR, sizeof (struct bgp_addr));
@@ -566,7 +566,7 @@ bgp_address_hash_alloc (void *p)
 }
 
 static unsigned int
-bgp_address_hash_key_make (void *p)
+bgp_address_hash_key_make (const void *p)
 {
   const struct bgp_addr *addr = p;
 

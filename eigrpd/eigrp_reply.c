@@ -32,6 +32,8 @@
 
 #include <zebra.h>
 
+struct vty;
+
 #include "thread.h"
 #include "memory.h"
 #include "linklist.h"
@@ -45,6 +47,7 @@
 #include "checksum.h"
 #include "md5.h"
 #include "keychain.h"
+#include "plist.h"
 
 #include "eigrpd/eigrp_structs.h"
 #include "eigrpd/eigrpd.h"

@@ -51,6 +51,8 @@ struct key
 #define KEYCHAIN_KEY_INVALID      0
 
 
+struct vty;
+
 extern void keychain_init (void);
 extern struct keychain *keychain_lookup (const char *);
 extern struct key *key_lookup_for_accept (const struct keychain *, u_int32_t);

@@ -77,9 +77,10 @@ static const size_t attr_flag_str_max = array_size(attr_flag_str);
 static struct hash *cluster_hash;
 
 static void *
-cluster_hash_alloc (void *p)
+cluster_hash_alloc (const void *p)
 {
-  struct cluster_list * val = (struct cluster_list *) p;
+//  const struct cluster_list * val = (const struct cluster_list *) p;
+  const struct cluster_list * val = p;
   struct cluster_list *cluster;
 
   cluster = XMALLOC (MTYPE_CLUSTER, sizeof (struct cluster_list));
@@ -125,7 +126,7 @@ cluster_loop_check (struct cluster_list *cluster, struct in_addr originator)
 }
 
 static unsigned int
-cluster_hash_key_make (void *p)
+cluster_hash_key_make (const void *p)
 {
   const struct cluster_list *cluster = p;
 
@@ -219,25 +220,26 @@ transit_free (struct transit *transit)
   XFREE (MTYPE_TRANSIT, transit);
 }
 
-
+/*
 static void *
-transit_hash_alloc (void *p)
+transit_hash_alloc (const void *p)
 {
-  /* Transit structure is already allocated.  */
-  return p;
-}
+	// Transit structure is already allocated
+	return p;
+}*/
 
 static struct transit *
 transit_intern (struct transit *transit)
 {
-  struct transit *find;
+	struct transit *find;
 
-  find = hash_get (transit_hash, transit, transit_hash_alloc);
-  if (find != transit)
-    transit_free (transit);
-  find->refcnt++;
+//	find = hash_get (transit_hash, transit, transit_hash_alloc);
+	find = hash_get2 (transit_hash, transit, transit);
+	if (find != transit)
+		transit_free (transit);
+	find->refcnt++;
 
-  return find;
+	return find;
 }
 
 void
@@ -254,7 +256,7 @@ transit_unintern (struct transit *transit)
 }
 
 static unsigned int
-transit_hash_key_make (void *p)
+transit_hash_key_make (const void *p)
 {
   const struct transit * transit = p;
 
@@ -356,11 +358,12 @@ attr_unknown_count (void)
 }
 
 unsigned int
-attrhash_key_make (void *p)
+attrhash_key_make (const void *p)
 {
-  const struct attr *attr = (struct attr *) p;
-  const struct attr_extra *extra = attr->extra;
-  uint32_t key = 0;
+//	const struct attr *attr = (struct attr *) p;
+	const struct attr *attr = p;
+	const struct attr_extra *extra = attr->extra;
+	uint32_t key = 0;
 #define MIX(val)	key = jhash_1word(val, key)
 
   MIX(attr->origin);
@@ -479,76 +482,88 @@ attr_show_all (struct vty *vty)
 }
 
 static void *
-bgp_attr_hash_alloc (void *p)
+bgp_attr_hash_alloc (const void *p)
 {
-  struct attr * val = (struct attr *) p;
-  struct attr *attr;
+//	struct attr *val = (struct attr *) p;
+	const struct attr *val = p;
+	struct attr *attr;
 
-  attr = XMALLOC (MTYPE_ATTR, sizeof (struct attr));
-  *attr = *val;
-  if (val->extra)
-    {
-      attr->extra = bgp_attr_extra_new ();
-      *attr->extra = *val->extra;
-    }
-  attr->refcnt = 0;
-  return attr;
-}
+	attr = XMALLOC (MTYPE_ATTR, sizeof (struct attr));
+	*attr = *val;  // memcpy?
+	if (val->extra)
+	{
+		attr->extra = bgp_attr_extra_new ();
+		*attr->extra = *val->extra;
+	}
+	attr->refcnt = 0;
+	return attr;
+}// bgp_attr_hash_alloc
+
 
 /* Internet argument attribute. */
 struct attr *
 bgp_attr_intern (struct attr *attr)
 {
-  struct attr *find;
+	struct attr *find;
 
-  /* Intern referenced strucutre. */
-  if (attr->aspath)
-    {
-      if (! attr->aspath->refcnt)
-	attr->aspath = aspath_intern (attr->aspath);
-      else
-	attr->aspath->refcnt++;
-    }
-  if (attr->community)
-    {
-      if (! attr->community->refcnt)
-	attr->community = community_intern (attr->community);
-      else
-	attr->community->refcnt++;
-    }
-  if (attr->extra)
-    {
-      struct attr_extra *attre = attr->extra;
-      
-      if (attre->ecommunity)
-        {
-          if (! attre->ecommunity->refcnt)
-            attre->ecommunity = ecommunity_intern (attre->ecommunity);
-          else
-            attre->ecommunity->refcnt++;
-          
-        }
-      if (attre->cluster)
-        {
-          if (! attre->cluster->refcnt)
-            attre->cluster = cluster_intern (attre->cluster);
-          else
-            attre->cluster->refcnt++;
-        }
-      if (attre->transit)
-        {
-          if (! attre->transit->refcnt)
-            attre->transit = transit_intern (attre->transit);
-          else
-            attre->transit->refcnt++;
-        }
-    }
-  
-  find = (struct attr *) hash_get (attrhash, attr, bgp_attr_hash_alloc);
-  find->refcnt++;
-  
-  return find;
-}
+	/* Intern referenced strucutre. */
+	if (attr->aspath)
+	{
+		if (! attr->aspath->refcnt)
+			attr->aspath = aspath_intern (attr->aspath);
+		else
+			attr->aspath->refcnt++;
+	}
+	if (attr->community)
+	{
+		if (! attr->community->refcnt)
+			attr->community = community_intern (attr->community);
+		else
+			attr->community->refcnt++;
+	}
+	if (attr->extra)
+	{
+		struct attr_extra *attre = attr->extra;
+
+		if (attre->ecommunity)
+		{
+			if (! attre->ecommunity->refcnt)
+				attre->ecommunity = ecommunity_intern (attre->ecommunity);
+			else
+				attre->ecommunity->refcnt++;
+		}
+		if (attre->cluster)
+		{
+			if (! attre->cluster->refcnt)
+				attre->cluster = cluster_intern (attre->cluster);
+			else
+				attre->cluster->refcnt++;
+		}
+		if (attre->transit)
+		{
+			if (! attre->transit->refcnt)
+			{
+			/**/
+				struct transit *t_find;
+//				t_find = hash_get (transit_hash, attre->transit, transit_hash_alloc);
+				t_find = hash_get2 (transit_hash, attre->transit, attre->transit);
+				if (t_find != attre->transit)
+					transit_free (attre->transit);
+				t_find->refcnt++;
+
+				attre->transit = t_find;
+//				attre->transit = transit_intern (attre->transit);
+			}else{
+				attre->transit->refcnt++;
+			}
+		}
+	}
+
+	find = (struct attr *) hash_get (attrhash, attr, bgp_attr_hash_alloc);
+	find->refcnt++;
+
+	return find;
+}// 
 
 
 /* Make network statement's attribute. */
@@ -2103,10 +2118,20 @@ bgp_attr_parse (struct peer *peer, struct attr *attr, bgp_size_t size,
     }
 
   /* Finally intern unknown attribute. */
-  if (attr->extra && attr->extra->transit)
-    attr->extra->transit = transit_intern (attr->extra->transit);
+	if (attr->extra && attr->extra->transit)
+	{
+	/**/
+		struct transit *t_find;
+//		t_find = hash_get (transit_hash, attr->extra->transit, transit_hash_alloc);
+		t_find = hash_get2 (transit_hash, attr->extra->transit, attr->extra->transit);
+		if (t_find != attr->extra->transit)
+			transit_free (attr->extra->transit);
+		t_find->refcnt++;
 
-  return BGP_ATTR_PARSE_PROCEED;
+		attr->extra->transit = t_find;
+//		attr->extra->transit = transit_intern (attr->extra->transit);
+	}
+	return BGP_ATTR_PARSE_PROCEED;
 }
 
 int stream_put_prefix (struct stream *, struct prefix *);

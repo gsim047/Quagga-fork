@@ -43,6 +43,8 @@ extern struct zclient *zclient;
 extern struct thread_master *master;
 extern struct eigrp_master *eigrp_om;
 
+struct eigrp;
+
 /* Prototypes */
  extern void eigrp_master_init (void);
  extern void eigrp_terminate (void);

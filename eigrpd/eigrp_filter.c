@@ -65,7 +65,7 @@ void
 eigrp_distribute_update (struct distribute *dist)
 {
   struct interface *ifp;
-  struct eigrp_interface *ei;
+  struct eigrp_interface *ei = NULL;
   struct access_list *alist;
   struct prefix_list *plist;
   struct route_map *routemap;

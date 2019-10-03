@@ -22,7 +22,10 @@
 #ifndef _ZEBRA_ISIS_ZEBRA_H
 #define _ZEBRA_ISIS_ZEBRA_H
 
-extern struct zclient *zclient;
+//extern struct zclient *zclient;
+struct prefix;
+struct isis_route_info;
+
 
 void isis_zebra_init (void);
 void isis_zebra_route_update (struct prefix *prefix,

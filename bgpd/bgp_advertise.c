@@ -53,9 +53,10 @@ baa_free (struct bgp_advertise_attr *baa)
 }
 
 static void *
-baa_hash_alloc (void *p)
+baa_hash_alloc (const void *p)
 {
-  struct bgp_advertise_attr * ref = (struct bgp_advertise_attr *) p;
+//  const struct bgp_advertise_attr * ref = (const struct bgp_advertise_attr *) p;
+  const struct bgp_advertise_attr * ref = p;
   struct bgp_advertise_attr *baa;
 
   baa = baa_new ();
@@ -64,9 +65,10 @@ baa_hash_alloc (void *p)
 }
 
 static unsigned int
-baa_hash_key (void *p)
+baa_hash_key (const void *p)
 {
-  struct bgp_advertise_attr * baa = (struct bgp_advertise_attr *) p;
+//  const struct bgp_advertise_attr * baa = (const struct bgp_advertise_attr *) p;
+  const struct bgp_advertise_attr * baa = p;
 
   return attrhash_key_make (baa->attr);
 }

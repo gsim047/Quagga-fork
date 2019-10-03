@@ -86,7 +86,7 @@ struct assegment_header
 };
 
 /* Hash for aspath.  This is the top level structure of AS path. */
-static struct hash *ashash;
+static struct hash *ashash = NULL;
 
 /* Stream for SNMP. See aspath_snmp_pathseg */
 static struct stream *snmp_stream;
@@ -633,7 +633,8 @@ aspath_intern (struct aspath *aspath)
   assert (aspath->str);
 
   /* Check AS path hash. */
-  find = hash_get (ashash, aspath, hash_alloc_intern);
+//  find = hash_get (ashash, aspath, hash_alloc_intern);
+  find = hash_get2 (ashash, aspath, aspath);
   if (find != aspath)
     aspath_free (aspath);
 
@@ -671,7 +672,7 @@ aspath_dup (struct aspath *aspath)
 }
 
 static void *
-aspath_hash_alloc (void *arg)
+aspath_hash_alloc (const void *arg)
 {
   const struct aspath *aspath = arg;
   struct aspath *new;
@@ -1378,7 +1379,7 @@ static struct aspath *
 aspath_add_asns (struct aspath *aspath, as_t asno, u_char type, unsigned num)
 {
   struct assegment *assegment = aspath->segments;
-  int i;
+  unsigned i;
 
   if (assegment && assegment->type == type)
     {
@@ -1829,20 +1830,23 @@ aspath_str2aspath (const char *str)
   return aspath;
 }
 
+
 /* Make hash value by raw aspath data. */
 unsigned int
-aspath_key_make (void *p)
+aspath_key_make (const void *p)
 {
-  struct aspath *aspath = (struct aspath *) p;
-  unsigned int key = 0;
+//	struct aspath *aspath = (const struct aspath *) p;
+	struct aspath *aspath = (struct aspath *) p;
+	unsigned int key = 0;
 
-  if (!aspath->str)
-    aspath_str_update (aspath);
+	if (!aspath->str)
+		aspath_str_update (aspath);
 
-  key = jhash (aspath->str, aspath->str_len, 2334325);
+	key = jhash (aspath->str, aspath->str_len, 2334325);
 
-  return key;
-}
+	return key;
+}// aspath_key_make
+
 
 /* If two aspath have same value then return 1 else return 0 */
 int
@@ -1873,7 +1877,7 @@ aspath_cmp (const void *arg1, const void *arg2)
 void
 aspath_init (void)
 {
-  ashash = hash_create_size (32768, aspath_key_make, aspath_cmp);
+	ashash = hash_create_size (32768, aspath_key_make, aspath_cmp);
 }
 
 void

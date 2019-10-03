@@ -48,6 +48,7 @@
 #include "log.h"
 #include "sockunion.h"		/* for inet_aton () */
 #include "plist.h"
+#include "vty.h"
 
 #include "eigrpd/eigrpd.h"
 #include "eigrpd/eigrp_structs.h"
@@ -597,6 +598,7 @@ route_match_tag_compile (const char *arg)
 //  *tag = atoi (arg);
 //
 //  return tag;
+    return NULL;
 }
 
 /* Free route map's compiled `match tag' value. */
@@ -694,6 +696,7 @@ route_set_metric_compile (const char *arg)
 //  mod->metric = metric;
 
 //  return mod;
+    return NULL;
 }
 
 /* Free route map's compiled `set metric' value. */
@@ -754,6 +757,7 @@ route_set_ip_nexthop_compile (const char *arg)
 //    }
 //
 //  return address;
+    return NULL;
 }
 
 /* Free route map's compiled `ip nexthop' value. */
@@ -806,6 +810,7 @@ route_set_tag_compile (const char *arg)
 //  *tag = atoi (arg);
 //
 //  return tag;
+    return NULL;
 }
 
 /* Free route map's compiled `ip nexthop' value. */
@@ -1188,9 +1193,12 @@ ALIAS (no_set_tag,
        "Tag value\n")
 
 
+void eigrp_route_map_init (void);
+
+
 /* Route-map init */
 void
-eigrp_route_map_init ()
+eigrp_route_map_init (void)
 {
   route_map_init ();
   route_map_init_vty ();

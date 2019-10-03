@@ -21,6 +21,9 @@
 
 #include <zebra.h>
 
+void ifstat_update_proc (void);
+
+
 #include "prefix.h"
 #include "zebra/rtadv.h"
 #include "zebra/irdp.h"
@@ -28,6 +31,7 @@
 #include "zebra/zebra_fpm.h"
 
 void ifstat_update_proc (void) { return; }
+
 #ifdef HAVE_SYS_WEAK_ALIAS_PRAGMA
 #pragma weak rtadv_config_write = ifstat_update_proc
 #pragma weak irdp_config_write = ifstat_update_proc

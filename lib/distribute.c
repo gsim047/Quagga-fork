@@ -65,13 +65,14 @@ distribute_free (struct distribute *dist)
 struct distribute *
 distribute_lookup (const char *ifname)
 {
-  struct distribute key;
+//  struct distribute key;
   struct distribute *dist;
 
   /* temporary reference */
-  key.ifname = (char *)ifname;
+//  key.ifname = (char *)ifname;
 
-  dist = hash_lookup (disthash, &key);
+//  dist = hash_lookup (disthash, &key);
+  dist = hash_lookup (disthash, ifname);
   
   return dist;
 }
@@ -89,7 +90,7 @@ distribute_list_delete_hook (void (*func) (struct distribute *))
 }
 
 static void *
-distribute_hash_alloc (struct distribute *arg)
+distribute_hash_alloc (const struct distribute *arg)
 {
   struct distribute *dist;
 
@@ -105,16 +106,17 @@ distribute_hash_alloc (struct distribute *arg)
 static struct distribute *
 distribute_get (const char *ifname)
 {
-  struct distribute key;
+//  struct distribute key;
 
   /* temporary reference */
-  key.ifname = (char *)ifname;
+//  key.ifname = (char *)ifname;
   
-  return hash_get (disthash, &key, (void * (*) (void *))distribute_hash_alloc);
+//  return hash_get (disthash, &key, (void * (*) (const void *))distribute_hash_alloc);
+  return hash_get (disthash, ifname, (void * (*) (const void *))distribute_hash_alloc);
 }
 
 static unsigned int
-distribute_hash_make (void *arg)
+distribute_hash_make (const void *arg)
 {
   const struct distribute *dist = arg;
 
@@ -801,7 +803,7 @@ DEFUN (distribute_list_route,
     }
 
   /* Get interface name corresponding distribute list. */
-  zlog_info("Distribute list on interface:", argv[2]);
+  zlog_info("Distribute list on interface: %s", argv[2]);
   distribute_list_route_set (argv[2], type, argv[0]);
 
   return CMD_SUCCESS;

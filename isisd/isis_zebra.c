@@ -49,6 +49,10 @@
 
 struct zclient *zclient = NULL;
 
+void isis_zebra_route_add_ipv6 (struct prefix *prefix,
+			   struct isis_route_info *route_info);
+
+
 /* Router-id update message from zebra. */
 static int
 isis_router_id_update_zebra (int command, struct zclient *zclient,

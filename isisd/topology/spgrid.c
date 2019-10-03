@@ -49,9 +49,10 @@ long   X,   /* horizontal size of grid */
        Y;   /* vertical size of grid */
 
 long   x,
-       y,
-       y1, y2, yp,
-       dl, dx, xn, yn, count,
+       y;
+long   y1, y2, yp,
+       dl, dx, xn;
+long   yn, count,
        *mess;
 
 double n;
@@ -592,40 +593,46 @@ gen_spgrid_topology (struct vty *vty, struct list *topology)
 
   source = ( s_f ) ? n0-1 : n0;
 
-  if ( p_f ) /* generating potentials */ {
-    p = (long*) calloc ( n0+1, sizeof (long) );
-    seed1 = 2*seed + 1;
-    init_rand ( seed1);
-    pl = pl - pm + 1;
+	if ( p_f ) /* generating potentials */ 
+	{
+		p = (long*) calloc ( n0+1, sizeof (long) );
+		seed1 = 2*seed + 1;
+		init_rand ( seed1);
+		pl = pl - pm + 1;
 
-    for ( x = 0; x < X; x ++ )
-      for ( y = 0; y < Y; y ++ ) {
-        p_t = pm + nrand ( pl );
-        if ( pn_f ) p_t *= (long) ( (1 + x) * pn );
-        if ( ps_f ) p_t *= (long) ( (1 + x) * ( (1 + x) * ps ));
+		for ( x = 0; x < X; x ++ )
+		{
+			for ( y = 0; y < Y; y ++ ) 
+			{
+				p_t = pm + nrand ( pl );
+				if ( pn_f ) p_t *= (long) ( (1 + x) * pn );
+				if ( ps_f ) p_t *= (long) ( (1 + x) * ( (1 + x) * ps ));
 
-        p[ NODE ( x, y ) ] = p_t;
-      }
-      p[n0] = 0;
-      if ( s_f ) p[n0-1] = 0;
-    }
+				p[ NODE ( x, y ) ] = p_t;
+			}
+		}
+		p[n0] = 0;
+		if ( s_f ) p[n0-1] = 0;
+	}
 
-  if ( s_f ) /* additional arcs from artifical source */
-    {
-      seed2 = 3*seed + 1;
-      init_rand ( seed2 );
-      sl = sl - sm + 1;
+	if ( s_f ) /* additional arcs from artifical source */
+	{
+		seed2 = 3*seed + 1;
+		init_rand ( seed2 );
+		sl = sl - sm + 1;
 
-      for ( x = X - 1; x >= 0; x -- )
-        for ( y = Y - 1; y >= 0; y -- )
-        {
-          i = NODE ( x, y );
-          s = sm + nrand ( sl );
-          print_arc (vty, topology,  n0, i, s );
-        }
+		for ( x = X - 1; x >= 0; x -- ) 
+		{
+			for ( y = Y - 1; y >= 0; y -- )
+			{
+				i = NODE ( x, y );
+				s = sm + nrand ( sl );
+				print_arc (vty, topology,  n0, i, s );
+			}
+		}
 
-      print_arc (vty, topology,  n0, n0-1, 0 );
-    }
+		print_arc (vty, topology,  n0, n0-1, 0 );
+	}
 
 
   /* ----- generating arcs within layers ----- */

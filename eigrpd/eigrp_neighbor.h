@@ -33,6 +33,15 @@
 #ifndef _ZEBRA_EIGRP_NEIGHBOR_H
 #define _ZEBRA_EIGRP_NEIGHBOR_H
 
+struct eigrp_neighbor;  // --> in eigrp_structs.h
+struct eigrp_interface;
+struct eigrp_header;
+struct ip;
+struct thread;
+struct TLV_Parameter_Type;
+struct eigrp;
+struct vty;
+
 /* Prototypes */
 extern struct eigrp_neighbor *eigrp_nbr_get(struct eigrp_interface *,
 					    struct eigrp_header *,

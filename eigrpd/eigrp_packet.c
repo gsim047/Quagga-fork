@@ -89,17 +89,18 @@ static int eigrp_retrans_count_exceeded(struct eigrp_packet *ep, struct eigrp_ne
 int
 eigrp_make_md5_digest (struct eigrp_interface *ei, struct stream *s, u_char flags)
 {
-
-  struct key *key;
-  struct keychain *keychain;
+	struct key *key = NULL;
+	struct keychain *keychain;
 
   unsigned char digest[EIGRP_AUTH_TYPE_MD5_LEN];
   MD5_CTX ctx;
   void *ibuf;
   size_t backup_get, backup_end;
   struct TLV_MD5_Authentication_Type *auth_TLV;
+  char* cbuf;
 
   ibuf = s->data;
+  cbuf = (char *)s->data;
   backup_end = s->endp;
   backup_get = s->getp;
 
@@ -109,16 +110,20 @@ eigrp_make_md5_digest (struct eigrp_interface *ei, struct stream *s, u_char flag
   stream_get(auth_TLV,s,EIGRP_AUTH_MD5_TLV_SIZE);
   stream_set_getp(s, backup_get);
 
-  keychain = keychain_lookup(IF_DEF_PARAMS (ei->ifp)->auth_keychain);
-   if(keychain)
-     key = key_lookup_for_send(keychain);
+	keychain = keychain_lookup(IF_DEF_PARAMS (ei->ifp)->auth_keychain);
+	if ( keychain )
+		key = key_lookup_for_send(keychain);
 
-   memset(&ctx, 0, sizeof(ctx));
-   MD5Init(&ctx);
+	memset(&ctx, 0, sizeof(ctx));
+	MD5Init(&ctx);
 
-   /* Generate a digest. Each situation needs different handling */
-   if(flags & EIGRP_AUTH_BASIC_HELLO_FLAG)
-     {
+	/* Generate a digest. Each situation needs different handling */
+	if(flags & EIGRP_AUTH_BASIC_HELLO_FLAG)
+	{
+		if ( !key ){
+			zlog_warn ("key is NULL");
+			return 0;
+		}
        MD5Update(&ctx, ibuf, EIGRP_MD5_BASIC_COMPUTE);
        MD5Update(&ctx, key->string, strlen(key->string));
        if(strlen(key->string) < 16)
@@ -128,115 +133,130 @@ eigrp_make_md5_digest (struct eigrp_interface *ei, struct stream *s, u_char flag
      {
        MD5Update(&ctx, ibuf, EIGRP_MD5_UPDATE_INIT_COMPUTE);
      }
-   else if(flags & EIGRP_AUTH_UPDATE_FLAG)
-     {
+	else if(flags & EIGRP_AUTH_UPDATE_FLAG)
+	{
+		if ( !key ){
+			zlog_warn ("key is NULL");
+			return 0;
+		}
        MD5Update(&ctx, ibuf, EIGRP_MD5_BASIC_COMPUTE);
        MD5Update(&ctx, key->string, strlen(key->string));
        if(strlen(key->string) < 16)
          MD5Update(&ctx, zeropad, 16 - strlen(key->string));
        if(backup_end > (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE))
          {
-           MD5Update(&ctx, ibuf + (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE),
+           MD5Update(&ctx, cbuf + (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE),
                backup_end - 20 - (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE));
          }
-     }
+	}
 
-   MD5Final(digest, &ctx);
+	MD5Final(digest, &ctx);
 
-  /* Append md5 digest to the end of the stream. */
-  memcpy(auth_TLV->digest,digest,EIGRP_AUTH_TYPE_MD5_LEN);
+	/* Append md5 digest to the end of the stream. */
+	memcpy(auth_TLV->digest,digest,EIGRP_AUTH_TYPE_MD5_LEN);
 
-  stream_set_endp(s,EIGRP_HEADER_LEN);
-  stream_put(s,auth_TLV,EIGRP_AUTH_MD5_TLV_SIZE);
-  stream_set_endp(s, backup_end);
+	stream_set_endp(s,EIGRP_HEADER_LEN);
+	stream_put(s,auth_TLV,EIGRP_AUTH_MD5_TLV_SIZE);
+	stream_set_endp(s, backup_end);
 
-  eigrp_authTLV_MD5_free(auth_TLV);
-  return EIGRP_AUTH_TYPE_MD5_LEN;
-}
+	eigrp_authTLV_MD5_free(auth_TLV);
+	return EIGRP_AUTH_TYPE_MD5_LEN;
+}// 
+
 
 int
 eigrp_check_md5_digest (struct stream *s, struct TLV_MD5_Authentication_Type *authTLV,struct eigrp_neighbor *nbr, u_char flags)
 {
-  MD5_CTX ctx;
-  unsigned char digest[EIGRP_AUTH_TYPE_MD5_LEN];
-  struct key *key;
-  struct keychain *keychain;
-  void *ibuf;
-  size_t backup_end;
-  struct TLV_MD5_Authentication_Type *auth_TLV;
-  struct eigrp_header *eigrph;
+	MD5_CTX ctx;
+	unsigned char digest[EIGRP_AUTH_TYPE_MD5_LEN];
+	struct key *key = NULL;
+	struct keychain *keychain;
+	void *ibuf;
+	char *cbuf;
+	size_t backup_end;
+	struct TLV_MD5_Authentication_Type *auth_TLV;
+	struct eigrp_header *eigrph;
 
 
-  if (nbr && ntohl(nbr->crypt_seqnum) > ntohl(authTLV->key_sequence))
-    {
-      zlog_warn ("interface %s: eigrp_check_md5 bad sequence %d (expect %d)",
+	if (nbr && ntohl(nbr->crypt_seqnum) > ntohl(authTLV->key_sequence))
+	{
+		zlog_warn ("interface %s: eigrp_check_md5 bad sequence %d (expect %d)",
                  IF_NAME (nbr->ei),
                  ntohl(authTLV->key_sequence),
                  ntohl(nbr->crypt_seqnum));
-      return 0;
-    }
+		return 0;
+	}
 
-  eigrph = (struct eigrp_header *) s->data;
-  eigrph->checksum = 0;
+	eigrph = (struct eigrp_header *) s->data;
+	eigrph->checksum = 0;
 
-  auth_TLV =(struct TLV_MD5_Authentication_Type *) (s->data + EIGRP_HEADER_LEN);
-  memcpy(auth_TLV->digest, "0", sizeof(auth_TLV->digest));
+	auth_TLV =(struct TLV_MD5_Authentication_Type *) (s->data + EIGRP_HEADER_LEN);
+	memcpy(auth_TLV->digest, "0", sizeof(auth_TLV->digest));
 
-  ibuf = s->data;
-  backup_end = s->endp;
+	ibuf = s->data;
+	cbuf = (char *)s->data;
+	backup_end = s->endp;
 
-  keychain = keychain_lookup(IF_DEF_PARAMS (nbr->ei->ifp)->auth_keychain);
-     if(keychain)
-       key = key_lookup_for_send(keychain);
+	keychain = keychain_lookup(IF_DEF_PARAMS (nbr->ei->ifp)->auth_keychain);
+	if ( keychain )
+		key = key_lookup_for_send(keychain);
 
-  memset(&ctx, 0, sizeof(ctx));
-  MD5Init(&ctx);
+	memset(&ctx, 0, sizeof(ctx));
+	MD5Init(&ctx);
 
-  /* Generate a digest. Each situation needs different handling */
-  if(flags & EIGRP_AUTH_BASIC_HELLO_FLAG)
-    {
-      MD5Update(&ctx, ibuf, EIGRP_MD5_BASIC_COMPUTE);
-      MD5Update(&ctx, key->string, strlen(key->string));
-      if(strlen(key->string) < 16)
-        MD5Update(&ctx, zeropad, 16 - strlen(key->string));
-    }
-  else if(flags & EIGRP_AUTH_UPDATE_INIT_FLAG)
-    {
-      MD5Update(&ctx, ibuf, EIGRP_MD5_UPDATE_INIT_COMPUTE);
-    }
-  else if(flags & EIGRP_AUTH_UPDATE_FLAG)
-    {
-      MD5Update(&ctx, ibuf, EIGRP_MD5_BASIC_COMPUTE);
-      MD5Update(&ctx, key->string, strlen(key->string));
-      if(strlen(key->string) < 16)
-        MD5Update(&ctx, zeropad, 16 - strlen(key->string));
-      if(backup_end > (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE))
-        {
-          MD5Update(&ctx, ibuf + (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE),
+	/* Generate a digest. Each situation needs different handling */
+	if(flags & EIGRP_AUTH_BASIC_HELLO_FLAG)
+	{
+		if ( !key ){
+			zlog_warn ("key is NULL");
+			return 0;
+		}
+		MD5Update(&ctx, ibuf, EIGRP_MD5_BASIC_COMPUTE);
+		MD5Update(&ctx, key->string, strlen(key->string));
+		if ( strlen(key->string) < 16 )
+			MD5Update(&ctx, zeropad, 16 - strlen(key->string));
+	}
+	else if(flags & EIGRP_AUTH_UPDATE_INIT_FLAG)
+	{
+		MD5Update(&ctx, ibuf, EIGRP_MD5_UPDATE_INIT_COMPUTE);
+	}
+	else if(flags & EIGRP_AUTH_UPDATE_FLAG)
+	{
+		if ( !key ){
+			zlog_warn ("key is NULL");
+			return 0;
+		}
+		MD5Update(&ctx, ibuf, EIGRP_MD5_BASIC_COMPUTE);
+		MD5Update(&ctx, key->string, strlen(key->string));
+		if(strlen(key->string) < 16)
+			MD5Update(&ctx, zeropad, 16 - strlen(key->string));
+		if(backup_end > (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE))
+		{
+			MD5Update(&ctx, cbuf + (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE),
               backup_end - 20 - (EIGRP_HEADER_LEN + EIGRP_AUTH_MD5_TLV_SIZE));
-        }
-    }
+		}
+	}
 
-  MD5Final(digest, &ctx);
+	MD5Final(digest, &ctx);
 
-  /* compare the two */
-  if (memcmp (authTLV->digest, digest, EIGRP_AUTH_TYPE_MD5_LEN) == 0)
-    {
-      zlog_debug("VSETKO OK");
-    }
-  else
-    {
-      zlog_warn ("interface %s: eigrp_check_md5 checksum mismatch",
+	/* compare the two */
+	if (memcmp (authTLV->digest, digest, EIGRP_AUTH_TYPE_MD5_LEN) == 0)
+	{
+		zlog_debug("VSETKO OK");
+	}
+	else
+	{
+		zlog_warn ("interface %s: eigrp_check_md5 checksum mismatch",
                        IF_NAME (nbr->ei));
-      return 0;
-    }
+		return 0;
+	}
 
-  /* save neighbor's crypt_seqnum */
-  if (nbr)
-    nbr->crypt_seqnum = authTLV->key_sequence;
+	/* save neighbor's crypt_seqnum */
+	if (nbr)
+		nbr->crypt_seqnum = authTLV->key_sequence;
 
-  return 1;
-}
+	return 1;
+}// 
 
 static int
 strnzcpyn(char *dst, const char *src, int size)
@@ -256,61 +276,63 @@ strnzcpyn(char *dst, const char *src, int size)
 int
 eigrp_make_sha256_digest (struct eigrp_interface *ei, struct stream *s, u_char flags)
 {
-    struct key *key;
-    struct keychain *keychain;
-    char *source_ip;
-    int saved_len;
-    char saved_key[PLAINTEXT_LENGTH + 1];
+	struct key *key = NULL;
+	struct keychain *keychain;
+	char *source_ip;
+	int saved_len;
+	char saved_key[PLAINTEXT_LENGTH + 1];
 
 
-    unsigned char digest[EIGRP_AUTH_TYPE_SHA256_LEN];
-    unsigned char buffer[1 + PLAINTEXT_LENGTH + 45 + 1] = { 0 };
-    HMAC_SHA256_CTX ctx;
-    void *ibuf;
-    size_t backup_get, backup_end;
-    struct TLV_SHA256_Authentication_Type *auth_TLV;
+	unsigned char digest[EIGRP_AUTH_TYPE_SHA256_LEN];
+	unsigned char buffer[1 + PLAINTEXT_LENGTH + 45 + 1] = { 0 };
+	HMAC_SHA256_CTX ctx;
+	void *ibuf;
+	size_t backup_get, backup_end;
+	struct TLV_SHA256_Authentication_Type *auth_TLV;
 
-    ibuf = s->data;
-    backup_end = s->endp;
-    backup_get = s->getp;
+	ibuf = s->data;
+	backup_end = s->endp;
+	backup_get = s->getp;
 
-    auth_TLV = eigrp_authTLV_SHA256_new ();
+	auth_TLV = eigrp_authTLV_SHA256_new ();
 
-    stream_set_getp(s,EIGRP_HEADER_LEN);
-    stream_get(auth_TLV,s,EIGRP_AUTH_SHA256_TLV_SIZE);
-    stream_set_getp(s, backup_get);
+	stream_set_getp(s,EIGRP_HEADER_LEN);
+	stream_get(auth_TLV,s,EIGRP_AUTH_SHA256_TLV_SIZE);
+	stream_set_getp(s, backup_get);
 
-    keychain = keychain_lookup(IF_DEF_PARAMS (ei->ifp)->auth_keychain);
-     if(keychain)
-       key = key_lookup_for_send(keychain);
+	keychain = keychain_lookup(IF_DEF_PARAMS (ei->ifp)->auth_keychain);
+	if (keychain)
+		key = key_lookup_for_send(keychain);
 
 //     saved_len[index] = strnzcpyn(saved_key[index], key,
 //                             PLAINTEXT_LENGTH + 1);
 
-     source_ip = calloc(16, sizeof(char));
-     inet_ntop(AF_INET, &ei->address->u.prefix4, source_ip, 16);
+	source_ip = calloc(16, sizeof(char));
+	inet_ntop(AF_INET, &ei->address->u.prefix4, source_ip, 16);
 
-     memset(&ctx, 0, sizeof(ctx));
-     buffer[0] = '\n';
-     memcpy(buffer + 1, key, strlen (key->string));
-     memcpy(buffer + 1 + strlen(key->string), source_ip, strlen(source_ip));
-     HMAC__SHA256_Init(&ctx, buffer, 1 + strlen (key->string) + strlen(source_ip));
-     HMAC__SHA256_Update(&ctx, ibuf, strlen(ibuf));
-     HMAC__SHA256_Final(digest, &ctx);
+	memset(&ctx, 0, sizeof(ctx));
+	buffer[0] = '\n';
+	if ( key ){
+		memcpy(buffer + 1, key, strlen (key->string));
+		memcpy(buffer + 1 + strlen(key->string), source_ip, strlen(source_ip));
+		HMAC__SHA256_Init(&ctx, buffer, 1 + strlen (key->string) + strlen(source_ip));
+		HMAC__SHA256_Update(&ctx, ibuf, strlen(ibuf));
+		HMAC__SHA256_Final(digest, &ctx);
+	}
 
 
-     /* Put hmac-sha256 digest to it's place */
-     memcpy(auth_TLV->digest,digest,EIGRP_AUTH_TYPE_SHA256_LEN);
+	/* Put hmac-sha256 digest to it's place */
+	memcpy(auth_TLV->digest,digest,EIGRP_AUTH_TYPE_SHA256_LEN);
 
-     stream_set_endp(s,EIGRP_HEADER_LEN);
-     stream_put(s,auth_TLV,EIGRP_AUTH_SHA256_TLV_SIZE);
-     stream_set_endp(s, backup_end);
+	stream_set_endp(s,EIGRP_HEADER_LEN);
+	stream_put(s,auth_TLV,EIGRP_AUTH_SHA256_TLV_SIZE);
+	stream_set_endp(s, backup_end);
 
-     eigrp_authTLV_SHA256_free(auth_TLV);
-     free(source_ip);
+	eigrp_authTLV_SHA256_free(auth_TLV);
+	free(source_ip);
 
-    return EIGRP_AUTH_TYPE_SHA256_LEN;
-}
+	return EIGRP_AUTH_TYPE_SHA256_LEN;
+}// eigrp_make_sha256_diges
 
 int
 eigrp_check_sha256_digest (struct stream *s, struct TLV_SHA256_Authentication_Type *authTLV,struct eigrp_neighbor *nbr, u_char flags)

@@ -249,7 +249,7 @@ recent_relative_time (void)
 }
 
 static unsigned int
-cpu_record_hash_key (struct cpu_thread_history *a)
+cpu_record_hash_key (const struct cpu_thread_history *a)
 {
   return (uintptr_t) a->func;
 }
@@ -262,7 +262,7 @@ cpu_record_hash_cmp (const struct cpu_thread_history *a,
 }
 
 static void *
-cpu_record_hash_alloc (struct cpu_thread_history *a)
+cpu_record_hash_alloc (const struct cpu_thread_history *a)
 {
   struct cpu_thread_history *new;
   new = XCALLOC (MTYPE_THREAD_STATS, sizeof (struct cpu_thread_history));
@@ -528,7 +528,7 @@ thread_master_create ()
 
   if (cpu_record == NULL) 
     cpu_record 
-      = hash_create ((unsigned int (*) (void *))cpu_record_hash_key,
+      = hash_create ((unsigned int (*) (const void *))cpu_record_hash_key,
 		     (int (*) (const void *, const void *))cpu_record_hash_cmp);
 
   rv = XCALLOC (MTYPE_THREAD_MASTER, sizeof (struct thread_master));
@@ -1242,7 +1242,7 @@ thread_call (struct thread *thread)
       tmp.funcname = thread->funcname;
       
       thread->hist = hash_get (cpu_record, &tmp, 
-                    (void * (*) (void *))cpu_record_hash_alloc);
+                    (void * (*) (const void *))cpu_record_hash_alloc);
     }
 
   GETRUSAGE (&before);

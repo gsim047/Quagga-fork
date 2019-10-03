@@ -576,6 +576,11 @@ ripng_enable_network_lookup2 (struct connected *connected)
   return -1;
 }
 
+
+static char __en[16] = {
+	"enabled"
+};
+
 /* Add RIPng enable network. */
 static int
 ripng_enable_network_add (struct prefix *p)
@@ -590,7 +595,7 @@ ripng_enable_network_add (struct prefix *p)
       return -1;
     }
   else
-    node->info = (char *) "enabled";
+    node->info = __en ; //(char *) "enabled";
 
   /* XXX: One should find a better solution than a generic one */
   ripng_enable_apply_all();

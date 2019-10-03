@@ -204,7 +204,8 @@ authentication_check (struct isis_passwd *remote, struct isis_passwd *local,
       /* Compute the digest */
       hmac_md5 (STREAM_DATA (stream), stream_get_endp (stream),
                 (unsigned char *) &(local->passwd), local->len,
-                (caddr_t) &digest);
+                (unsigned char*) &digest);
+//                (caddr_t) &digest);
       /* Copy back the authentication value after the check */
       memcpy (STREAM_DATA (stream) + auth_tlv_offset + 3,
               remote->passwd, ISIS_AUTH_MD5_SIZE);
@@ -1264,12 +1265,12 @@ out:
   if (isis->debugs & DEBUG_ADJ_PACKETS)
     {
       zlog_debug ("ISIS-Adj (%s): Rcvd L%d LAN IIH from %s on %s, cirType %s, "
-		  "cirID %u, length %ld",
+		  "cirID %u, length %u",
 		  circuit->area->area_tag,
 		  level, snpa_print (ssnpa), circuit->interface->name,
 		  circuit_t2string (circuit->is_type),
 		  circuit->circuit_id,
-		  stream_get_endp (circuit->rcv_stream));
+		  (unsigned)stream_get_endp (circuit->rcv_stream));
     }
 
   free_tlvs (&tlvs);
@@ -2469,7 +2470,8 @@ send_hello (struct isis_circuit *circuit, int level)
       hmac_md5 (STREAM_DATA (circuit->snd_stream),
                 stream_get_endp (circuit->snd_stream),
                 (unsigned char *) &circuit->passwd.passwd, circuit->passwd.len,
-                (caddr_t) &hmac_md5_hash);
+                (unsigned char*) &hmac_md5_hash);
+//                (caddr_t) &hmac_md5_hash);
       /* Copy the hash into the stream */
       memcpy (STREAM_DATA (circuit->snd_stream) + auth_tlv_offset + 3,
               hmac_md5_hash, ISIS_AUTH_MD5_SIZE);
@@ -2656,7 +2658,8 @@ build_csnp (int level, u_char * start, u_char * stop, struct list *lsps,
       hmac_md5 (STREAM_DATA (circuit->snd_stream),
                 stream_get_endp(circuit->snd_stream),
                 (unsigned char *) &passwd->passwd, passwd->len,
-                (caddr_t) &hmac_md5_hash);
+                (unsigned char*) &hmac_md5_hash);
+//                (caddr_t) &hmac_md5_hash);
       /* Copy the hash into the stream */
       memcpy (STREAM_DATA (circuit->snd_stream) + auth_tlv_offset + 3,
               hmac_md5_hash, ISIS_AUTH_MD5_SIZE);
@@ -2801,9 +2804,9 @@ send_csnp (struct isis_circuit *circuit, int level)
 
       if (isis->debugs & DEBUG_SNP_PACKETS)
         {
-          zlog_debug ("ISIS-Snp (%s): Sent L%d CSNP on %s, length %ld",
+          zlog_debug ("ISIS-Snp (%s): Sent L%d CSNP on %s, length %u",
                       circuit->area->area_tag, level, circuit->interface->name,
-                      stream_get_endp (circuit->snd_stream));
+                      (unsigned)stream_get_endp (circuit->snd_stream));
           for (ALL_LIST_ELEMENTS_RO (list, node, lsp))
             {
               zlog_debug ("ISIS-Snp (%s):         CSNP entry %s, seq 0x%08x,"
@@ -2992,7 +2995,8 @@ build_psnp (int level, struct isis_circuit *circuit, struct list *lsps)
       hmac_md5 (STREAM_DATA (circuit->snd_stream),
                 stream_get_endp(circuit->snd_stream),
                 (unsigned char *) &passwd->passwd, passwd->len,
-                (caddr_t) &hmac_md5_hash);
+                (unsigned char*) &hmac_md5_hash);
+//                (caddr_t) &hmac_md5_hash);
       /* Copy the hash into the stream */
       memcpy (STREAM_DATA (circuit->snd_stream) + auth_tlv_offset + 3,
               hmac_md5_hash, ISIS_AUTH_MD5_SIZE);
@@ -3050,10 +3054,10 @@ send_psnp (int level, struct isis_circuit *circuit)
 
       if (isis->debugs & DEBUG_SNP_PACKETS)
         {
-          zlog_debug ("ISIS-Snp (%s): Sent L%d PSNP on %s, length %ld",
+          zlog_debug ("ISIS-Snp (%s): Sent L%d PSNP on %s, length %u",
                       circuit->area->area_tag, level,
                       circuit->interface->name,
-                      stream_get_endp (circuit->snd_stream));
+                      (unsigned)stream_get_endp (circuit->snd_stream));
           if (isis->debugs & DEBUG_PACKET_DUMP)
             zlog_dump_data (STREAM_DATA (circuit->snd_stream),
                             stream_get_endp (circuit->snd_stream));

@@ -232,64 +232,66 @@ ripng_recv_packet (int sock, u_char *buf, int bufsize,
 		   struct sockaddr_in6 *from, unsigned int *ifindex, 
 		   int *hoplimit)
 {
-  int ret;
-  struct msghdr msg;
-  struct iovec iov;
-  struct cmsghdr  *cmsgptr;
-  struct in6_addr dst;
+	int ret;
+	struct msghdr msg;
+	struct iovec iov;
+	struct cmsghdr  *cmsgptr;
+	struct in6_addr dst;
 
-  /* Ancillary data.  This store cmsghdr and in6_pktinfo.  But at this
-     point I can't determine size of cmsghdr */
-  char adata[1024];
+	/* Ancillary data.  This store cmsghdr and in6_pktinfo.  But at this
+	   point I can't determine size of cmsghdr */
+	char adata[1024];
 
-  /* Fill in message and iovec. */
-  msg.msg_name = (void *) from;
-  msg.msg_namelen = sizeof (struct sockaddr_in6);
-  msg.msg_iov = &iov;
-  msg.msg_iovlen = 1;
-  msg.msg_control = (void *) adata;
-  msg.msg_controllen = sizeof adata;
-  iov.iov_base = buf;
-  iov.iov_len = bufsize;
+	memset(&dst, 0, sizeof(struct in6_addr));
 
-  /* If recvmsg fail return minus value. */
-  ret = recvmsg (sock, &msg, 0);
-  if (ret < 0)
-    return ret;
+	/* Fill in message and iovec. */
+	msg.msg_name = (void *) from;
+	msg.msg_namelen = sizeof (struct sockaddr_in6);
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = (void *) adata;
+	msg.msg_controllen = sizeof adata;
+	iov.iov_base = buf;
+	iov.iov_len = bufsize;
 
-  for (cmsgptr = ZCMSG_FIRSTHDR(&msg); cmsgptr != NULL;
-       cmsgptr = CMSG_NXTHDR(&msg, cmsgptr)) 
-    {
-      /* I want interface index which this packet comes from. */
-      if (cmsgptr->cmsg_level == IPPROTO_IPV6 &&
-	  cmsgptr->cmsg_type == IPV6_PKTINFO) 
+	/* If recvmsg fail return minus value. */
+	ret = recvmsg (sock, &msg, 0);
+	if (ret < 0)
+		return ret;
+
+	for (cmsgptr = ZCMSG_FIRSTHDR(&msg); cmsgptr != NULL;
+	     cmsgptr = CMSG_NXTHDR(&msg, cmsgptr))
 	{
-	  struct in6_pktinfo *ptr;
-	  
-	  ptr = (struct in6_pktinfo *) CMSG_DATA (cmsgptr);
-	  *ifindex = ptr->ipi6_ifindex;
-	  dst = ptr->ipi6_addr;
+		/* I want interface index which this packet comes from. */
+		if (cmsgptr->cmsg_level == IPPROTO_IPV6 &&
+		    cmsgptr->cmsg_type == IPV6_PKTINFO) 
+		{
+			struct in6_pktinfo *ptr;
 
-	  if (*ifindex == 0)
-	    zlog_warn ("Interface index returned by IPV6_PKTINFO is zero");
-        }
+			ptr = (struct in6_pktinfo *) CMSG_DATA (cmsgptr);
+			*ifindex = ptr->ipi6_ifindex;
+			dst = ptr->ipi6_addr;
+
+			if (*ifindex == 0)
+				zlog_warn ("Interface index returned by IPV6_PKTINFO is zero");
+		}
 
       /* Incoming packet's multicast hop limit. */
-      if (cmsgptr->cmsg_level == IPPROTO_IPV6 &&
-	  cmsgptr->cmsg_type == IPV6_HOPLIMIT)
-	{
-	  int *phoplimit = (int *) CMSG_DATA (cmsgptr);
-	  *hoplimit = *phoplimit;
+		if (cmsgptr->cmsg_level == IPPROTO_IPV6 &&
+		    cmsgptr->cmsg_type == IPV6_HOPLIMIT)
+		{
+			int *phoplimit = (int *) CMSG_DATA (cmsgptr);
+			*hoplimit = *phoplimit;
+		}
 	}
-    }
 
-  /* Hoplimit check shold be done when destination address is
-     multicast address. */
-  if (! IN6_IS_ADDR_MULTICAST (&dst))
-    *hoplimit = -1;
+	/* Hoplimit check shold be done when destination address is
+	   multicast address. */
+	if (! IN6_IS_ADDR_MULTICAST (&dst))
+		*hoplimit = -1;
 
-  return ret;
-}
+	return ret;
+}//
 
 /* Dump rip packet */
 void

@@ -139,7 +139,7 @@ struct thread_master *master;
 const char *pid_file = PATH_EIGRPD_PID;
 
 /* Configuration filename and directory. */
-char *config_default = SYSCONFDIR EIGRP_DEFAULT_CONFIG;
+const char *config_default = SYSCONFDIR EIGRP_DEFAULT_CONFIG;
 
 /* SIGHUP handler. */
 static void 

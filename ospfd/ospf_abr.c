@@ -687,29 +687,29 @@ ospf_abr_translate_nssa (struct ospf_area *area, struct ospf_lsa *lsa)
               "could not refresh translated LSA Id %s",
               inet_ntoa (old->data->id));
         }
-    }
-  else
-    {
+	}
+	else
+	{
       /* no existing external route for this LSA Id
        * originate translated LSA 
        */
       
-	  if ((new = ospf_translated_nssa_originate (area->ospf, lsa)) 
-	       == NULL)
-	    {
-	      if (IS_DEBUG_OSPF_NSSA)
-	        zlog_debug ("ospf_abr_translate_nssa(): Could not translate "
-	                   "Type-7 for %s to Type-5", 
-	                   inet_ntoa (lsa->data->id));
-	        return 1;
-	    }
-    }
+		if ((new = ospf_translated_nssa_originate (area->ospf, lsa)) == NULL)
+		{
+			if (IS_DEBUG_OSPF_NSSA){
+				zlog_debug ("ospf_abr_translate_nssa(): Could not translate "
+				           "Type-7 for %s to Type-5", 
+				           inet_ntoa (lsa->data->id));
+			}
+			return 1;
+		}
+	}
 
   /* Area where Aggregate testing will be inserted, just like summary
      advertisements */
   /* ospf_abr_check_nssa_range (p_arg, lsa-> cost, lsa -> area); */
 
-  return 0;
+	return 0;
 }
 
 static void
@@ -942,19 +942,20 @@ ospf_abr_announce_network (struct ospf *ospf,
 	    ospf_abr_announce_network_to_area (p, or->cost, area);
 	}
 
-      if (or->path_type == OSPF_PATH_INTRA_AREA)
-        {
-          if (IS_DEBUG_OSPF_EVENT)
-            zlog_debug ("ospf_abr_announce_network(): "
-                       "this is intra-area route to %s/%d",
-                       inet_ntoa (p->prefix), p->prefixlen);
-            if ((range = ospf_area_range_match (or_area, p)) 
-                 && !ospf_area_is_transit (area))
-              ospf_abr_update_aggregate (range, or, area);
-            else
-              ospf_abr_announce_network_to_area (p, or->cost, area);
-        }
-    }
+		if (or->path_type == OSPF_PATH_INTRA_AREA)
+		{
+			if (IS_DEBUG_OSPF_EVENT){
+				zlog_debug ("ospf_abr_announce_network(): "
+				            "this is intra-area route to %s/%d",
+				            inet_ntoa (p->prefix), p->prefixlen);
+			}
+			if ((range = ospf_area_range_match (or_area, p)) 
+			    && !ospf_area_is_transit (area))
+				ospf_abr_update_aggregate (range, or, area);
+			else
+				ospf_abr_announce_network_to_area (p, or->cost, area);
+		}
+	}
 }
 
 static int

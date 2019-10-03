@@ -195,7 +195,8 @@ ecommunity_intern (struct ecommunity *ecom)
 
   assert (ecom->refcnt == 0);
 
-  find = (struct ecommunity *) hash_get (ecomhash, ecom, hash_alloc_intern);
+//  find = (struct ecommunity *) hash_get (ecomhash, ecom, hash_alloc_intern);
+  find = (struct ecommunity *) hash_get2 (ecomhash, ecom, ecom);
 
   if (find != ecom)
     ecommunity_free (&ecom);
@@ -230,7 +231,7 @@ ecommunity_unintern (struct ecommunity **ecom)
 
 /* Utinity function to make hash key.  */
 unsigned int
-ecommunity_hash_make (void *arg)
+ecommunity_hash_make (const void *arg)
 {
   const struct ecommunity *ecom = arg;
   int size = ecom->size * ECOMMUNITY_SIZE;

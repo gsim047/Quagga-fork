@@ -49,7 +49,7 @@ struct hash
   int no_expand;
 
   /* Key make function. */
-  unsigned int (*hash_key) (void *);
+  unsigned int (*hash_key) (const void *);
 
   /* Data compare function. */
   int (*hash_cmp) (const void *, const void *);
@@ -58,14 +58,15 @@ struct hash
   unsigned long count;
 };
 
-extern struct hash *hash_create (unsigned int (*) (void *), 
+extern struct hash *hash_create (unsigned int (*) (const void *), 
 				 int (*) (const void *, const void *));
-extern struct hash *hash_create_size (unsigned int, unsigned int (*) (void *), 
+extern struct hash *hash_create_size (unsigned int, unsigned int (*) (const void *), 
                                              int (*) (const void *, const void *));
 
-extern void *hash_get (struct hash *, void *, void * (*) (void *));
-extern void *hash_alloc_intern (void *);
-extern void *hash_lookup (struct hash *, void *);
+extern void *hash_get (struct hash *, const void *, void * (*) (const void *));
+extern void *hash_get2 (struct hash *, const void *, void *);
+//extern void *hash_alloc_intern (const void *);
+extern void *hash_lookup (struct hash *, const void *);
 extern void *hash_release (struct hash *, void *);
 
 extern void hash_iterate (struct hash *, 

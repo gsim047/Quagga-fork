@@ -32,6 +32,8 @@
 
 #include <zebra.h>
 
+struct vty;
+
 #include "thread.h"
 #include "memory.h"
 #include "linklist.h"
@@ -59,6 +61,7 @@
 #include "eigrpd/eigrp_macros.h"
 #include "eigrpd/eigrp_topology.h"
 #include "eigrpd/eigrp_fsm.h"
+#include "eigrpd/eigrp_network.h"
 
 /**
  * @fn remove_received_prefix_gr
@@ -198,13 +201,13 @@ eigrp_update_receive (struct eigrp *eigrp, struct ip *iph, struct eigrp_header *
   if((nbr->recv_sequence_number) == (ntohl(eigrph->sequence)))
       same = 1;
 
-  nbr->recv_sequence_number = ntohl(eigrph->sequence);
-  if (IS_DEBUG_EIGRP_PACKET(0, RECV))
-    zlog_debug("Processing Update size[%u] int(%s) nbr(%s) seq [%u] flags [%0x]",
+	nbr->recv_sequence_number = ntohl(eigrph->sequence);
+	if (IS_DEBUG_EIGRP_PACKET(0, RECV)){
+		zlog_debug("Processing Update size[%u] int(%s) nbr(%s) seq [%u] flags [%0x]",
                size, ifindex2ifname(nbr->ei->ifp->ifindex),
                inet_ntoa(nbr->src),
                nbr->recv_sequence_number, flags);
-
+	}
 
     if((flags == (EIGRP_INIT_FLAG+EIGRP_RS_FLAG+EIGRP_EOT_FLAG)) && (!same))
     {

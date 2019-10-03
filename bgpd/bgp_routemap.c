@@ -831,7 +831,7 @@ route_match_probability (void *rule, struct prefix *prefix,
     case 0: break;
     case RAND_MAX: return RMAP_MATCH;
     default:
-      if (r < *(unsigned *) rule)
+      if (r < *(long *) rule)
         {
           return RMAP_MATCH;
         }
@@ -3920,6 +3920,10 @@ ALIAS (no_match_pathlimit_as,
        MATCH_STR
        "BGP AS-Pathlimit attribute\n"
        "Match Pathlimit ASN\n")
+
+
+void bgp_route_map_init (void);
+
 
 
 /* Initialization of route map. */

@@ -8,6 +8,9 @@
 #ifndef EIGRPD_EIGRP_ROUTEMAP_H_
 #define EIGRPD_EIGRP_ROUTEMAP_H_
 
+struct if_rmap;
+struct interface;
+
 extern void eigrp_route_map_update (const char *);
 extern void eigrp_route_map_init ();
 extern void eigrp_if_rmap_update (struct if_rmap *);

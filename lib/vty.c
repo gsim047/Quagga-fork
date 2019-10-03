@@ -2265,7 +2265,7 @@ vty_read_file (FILE *confp)
 }
 
 static FILE *
-vty_use_backup_config (char *fullpath)
+vty_use_backup_config (const char *fullpath)
 {
   char *fullpath_sav, *fullpath_tmp;
   FILE *ret = NULL;
@@ -2331,11 +2331,11 @@ vty_use_backup_config (char *fullpath)
 /* Read up configuration file from file_name. */
 void
 vty_read_config (char *config_file,
-                 char *config_default_dir)
+                 const char *config_default_dir)
 {
   char cwd[MAXPATHLEN];
   FILE *confp = NULL;
-  char *fullpath;
+  const char *fullpath;
   char *tmp = NULL;
 
   /* If -f flag specified. */
@@ -2428,7 +2428,8 @@ vty_read_config (char *config_file,
   host_config_set (fullpath);
   
   if (tmp)
-    XFREE (MTYPE_TMP, fullpath);
+//    XFREE (MTYPE_TMP, fullpath);
+    XFREE (MTYPE_TMP, tmp);
 }
 
 /* Small utility function which output log to the VTY. */
@@ -2459,6 +2460,7 @@ vty_log_fixed (char *buf, size_t len)
 {
   unsigned int i;
   struct iovec iov[2];
+  static char crlf[] = { "\r\n" };
 
   /* vty may not have been initialised */
   if (!vtyvec)
@@ -2466,7 +2468,7 @@ vty_log_fixed (char *buf, size_t len)
   
   iov[0].iov_base = buf;
   iov[0].iov_len = len;
-  iov[1].iov_base = (void *)"\r\n";
+  iov[1].iov_base = crlf; //"\r\n";
   iov[1].iov_len = 2;
 
   for (i = 0; i < vector_active (vtyvec); i++)

@@ -2354,19 +2354,20 @@ rip_output_process (struct connected *ifc, struct sockaddr_in *to,
 
 	/* Interface route-map */
 	if (ri->routemap[RIP_FILTER_OUT])
-	  {
-	    ret = route_map_apply (ri->routemap[RIP_FILTER_OUT], 
-				     (struct prefix *) p, RMAP_RIP, 
-				     rinfo);
+	{
+		ret = route_map_apply (ri->routemap[RIP_FILTER_OUT], 
+		                       (struct prefix *) p, RMAP_RIP, rinfo);
 
-	    if (ret == RMAP_DENYMATCH)
-	      {
-	        if (IS_RIP_DEBUG_PACKET)
-	          zlog_debug ("RIP %s/%d is filtered by route-map out",
-			     inet_ntoa (p->prefix), p->prefixlen);
-		  continue;
-	      }
-	  }
+		if (ret == RMAP_DENYMATCH)
+		{
+			if (IS_RIP_DEBUG_PACKET)
+			{
+				zlog_debug ("RIP %s/%d is filtered by route-map out",
+				            inet_ntoa (p->prefix), p->prefixlen);
+			}
+			continue;
+		}
+	}
            
 	/* Apply redistribute route map - continue, if deny */
 	if (rip->route_map[rinfo->type].name
@@ -2974,6 +2975,11 @@ ALIAS (no_rip_version,
        "Set routing protocol version\n"
        "version\n")
 
+
+static char __tx[16] = {
+	"static"
+};
+
 DEFUN (rip_route,
        rip_route_cmd,
        "route A.B.C.D/M",
@@ -3002,7 +3008,7 @@ DEFUN (rip_route,
       return CMD_WARNING;
     }
 
-  node->info = (char *)"static";
+  node->info = __tx; //(char *)"static";
 
   rip_redistribute_add (ZEBRA_ROUTE_RIP, RIP_ROUTE_STATIC, &p, 0, NULL, 0, 0);
 

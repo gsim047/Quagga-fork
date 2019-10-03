@@ -796,27 +796,35 @@ rip_enable_network_lookup2 (struct connected *connected)
 
   return -1;
 }
+
+
+static char __en[16] = {
+	"enabled"
+};
+
 /* Add RIP enable network. */
 static int
 rip_enable_network_add (struct prefix *p)
 {
-  struct route_node *node;
+	struct route_node *node;
 
-  node = route_node_get (rip_enable_network, p);
+	node = route_node_get (rip_enable_network, p);
 
-  if (node->info)
-    {
-      route_unlock_node (node);
-      return -1;
-    }
-  else
-    node->info = (char *) "enabled";
+	if (node->info)
+	{
+		route_unlock_node (node);
+		return -1;
+	}
+	else {
+//		node->info = (char *) "enabled";
+		node->info = __en;
+	}
 
-  /* XXX: One should find a better solution than a generic one */
-  rip_enable_apply_all();
+	/* XXX: One should find a better solution than a generic one */
+	rip_enable_apply_all();
 
-  return 1;
-}
+	return 1;
+}// rip_enable_network_add
 
 /* Delete RIP enable network. */
 static int

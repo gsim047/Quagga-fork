@@ -696,15 +696,16 @@ interface_up (struct thread *thread)
       return 0;
     }
 
-  /* check interface has a link-local address */
-  if (! (ospf6_interface_get_linklocal_address(oi->interface)
-         || if_is_loopback(oi->interface)))
-    {
-      if (IS_OSPF6_DEBUG_INTERFACE)
-	zlog_debug ("Interface %s has no link local address, can't execute [InterfaceUp]",
-		    oi->interface->name);
-	return 0;
-    }
+	/* check interface has a link-local address */
+	if (! (ospf6_interface_get_linklocal_address(oi->interface)
+	    || if_is_loopback(oi->interface)))
+	{
+		if (IS_OSPF6_DEBUG_INTERFACE)
+		{
+			zlog_debug ("Interface %s has no link local address, can't execute [InterfaceUp]", oi->interface->name);
+		}
+		return 0;
+	}
 
   /* Recompute cost */
   ospf6_interface_recalculate_cost (oi);

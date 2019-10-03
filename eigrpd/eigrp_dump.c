@@ -109,16 +109,17 @@ config_write_debug (struct vty *vty)
 //  }
 
   /* debug eigrp packet */
-  for (i = 0; i < 11; i++)
-  {
-      if (conf_debug_eigrp_packet[i] == 0 && term_debug_eigrp_packet[i] == 0 )
-    	  continue;
+	for (i = 0; i < 10; i++)
+	{
+		if (conf_debug_eigrp_packet[i] == 0 && term_debug_eigrp_packet[i] == 0 ){
+			continue;
+		}
 
-      	  vty_out (vty, "debug eigrp packet %s%s%s",
-	      type_str[i], detail_str[conf_debug_eigrp_packet[i]],
-	      VTY_NEWLINE);
-      write = 1;
-  }
+		vty_out (vty, "debug eigrp packet %s%s%s",
+		         type_str[i], detail_str[conf_debug_eigrp_packet[i]],
+		         VTY_NEWLINE);
+		write = 1;
+	}
 
 	//  int write = 0;
 	//  int i, r;
@@ -235,8 +236,8 @@ config_write_debug (struct vty *vty)
 	//      write = 1;
 	//    }
 
-  return write;
-}
+	return write;
+}// 
 
 
 static int
@@ -471,43 +472,43 @@ DEFUN (show_debugging_eigrp,
        DEBUG_STR
        EIGRP_STR)
 {
-  int i;
+	int i;
 
-  vty_out (vty, "EIGRP debugging status:%s", VTY_NEWLINE);
+	vty_out (vty, "EIGRP debugging status:%s", VTY_NEWLINE);
 
-  /* Show debug status for events. */
-  if (IS_DEBUG_EIGRP(event,EVENT))
-    vty_out (vty, "  EIGRP event debugging is on%s", VTY_NEWLINE);
+	/* Show debug status for events. */
+	if (IS_DEBUG_EIGRP(event,EVENT))
+		vty_out (vty, "  EIGRP event debugging is on%s", VTY_NEWLINE);
 
-  /* Show debug status for EIGRP Packets. */
-  for (i = 0; i < 11 ; i++)
-  {
-      if (i == 8)
-        continue;
-
-	if (IS_DEBUG_EIGRP_PACKET (i, SEND) && IS_DEBUG_EIGRP_PACKET (i, RECV))
+	/* Show debug status for EIGRP Packets. */
+	for (i = 0; i < 11 ; i++)
 	{
-		vty_out (vty, "  EIGRP packet %s%s debugging is on%s",
-		LOOKUP (eigrp_packet_type_str, i + 1),
-		IS_DEBUG_EIGRP_PACKET (i, PACKET_DETAIL) ? " detail" : "",
-		VTY_NEWLINE);
-	}
-	else
-	{
-		if (IS_DEBUG_EIGRP_PACKET (i, SEND))
-			vty_out (vty, "  EIGRP packet %s send%s debugging is on%s",
-			LOOKUP (eigrp_packet_type_str, i + 1),
-			IS_DEBUG_EIGRP_PACKET (i, PACKET_DETAIL) ? " detail" : "",
-			VTY_NEWLINE);
-		if (IS_DEBUG_EIGRP_PACKET (i, RECV))
-			vty_out (vty, "  EIGRP packet %s receive%s debugging is on%s",
-			LOOKUP (eigrp_packet_type_str, i + 1),
-			IS_DEBUG_EIGRP_PACKET (i, PACKET_DETAIL) ? " detail" : "",
-			VTY_NEWLINE);
-	}
-  }
+		if (i == 8)
+			continue;
 
-  return CMD_SUCCESS;
+		if (IS_DEBUG_EIGRP_PACKET (i, SEND) && IS_DEBUG_EIGRP_PACKET (i, RECV))
+		{
+			vty_out (vty, "  EIGRP packet %s%s debugging is on%s",
+			         LOOKUP (eigrp_packet_type_str, i + 1),
+			         IS_DEBUG_EIGRP_PACKET (i, PACKET_DETAIL) ? " detail" : "",
+			         VTY_NEWLINE);
+		}
+		else
+		{
+			if (IS_DEBUG_EIGRP_PACKET (i, SEND))
+				vty_out (vty, "  EIGRP packet %s send%s debugging is on%s",
+				         LOOKUP (eigrp_packet_type_str, i + 1),
+				         IS_DEBUG_EIGRP_PACKET (i, PACKET_DETAIL) ? " detail" : "",
+				         VTY_NEWLINE);
+			if (IS_DEBUG_EIGRP_PACKET (i, RECV))
+				vty_out (vty, "  EIGRP packet %s receive%s debugging is on%s",
+				         LOOKUP (eigrp_packet_type_str, i + 1),
+				         IS_DEBUG_EIGRP_PACKET (i, PACKET_DETAIL) ? " detail" : "",
+				        VTY_NEWLINE);
+		}
+	}
+
+	return CMD_SUCCESS;
 }
 
 
@@ -579,35 +580,37 @@ DEFUN (no_debug_eigrp_transmit,
        "packet received\n"
        "all packets\n")
 {
-  int type = 0;
-  int flag = 0;
-  int i;
+	int type = 0;
+	int flag = 0;
+	int i;
 
-  /* send or recv. */
-  if (strncmp (argv[0], "s", 1) == 0)
-	flag = EIGRP_DEBUG_SEND;
-  if (strncmp (argv[0], "r", 1) == 0)
-  	flag = EIGRP_DEBUG_RECV;
-  if (strncmp (argv[0], "a", 1) == 0)
-  	flag = EIGRP_DEBUG_SEND_RECV;
+	/* send or recv. */
+	if (strncmp (argv[0], "s", 1) == 0)
+		flag = EIGRP_DEBUG_SEND;
+	if (strncmp (argv[0], "r", 1) == 0)
+		flag = EIGRP_DEBUG_RECV;
+	if (strncmp (argv[0], "a", 1) == 0)
+		flag = EIGRP_DEBUG_SEND_RECV;
 
-  /* detail option */
-  if (argc > 1)
-  {
-	if (strncmp (argv[1], "d", 1) == 0)
-	  flag = EIGRP_DEBUG_PACKET_DETAIL;
-	if (strncmp (argv[1], "s", 1) == 0)
-	  zlog_debug("this is not so strange anymore .... ");
-	  flag = 0;
-  }
+	/* detail option */
+	if (argc > 1)
+	{
+		if (strncmp (argv[1], "d", 1) == 0)
+			flag = EIGRP_DEBUG_PACKET_DETAIL;
+		if (strncmp (argv[1], "s", 1) == 0){
+			zlog_debug("this is not so strange anymore .... ");
+			flag = 0;
+		}
+	}
 
-  if (vty->node == CONFIG_NODE)
-	DEBUG_TRANSMIT_OFF (0, flag);
-  else
-	TERM_DEBUG_TRANSMIT_OFF (0, flag);
+	if (vty->node == CONFIG_NODE)
+		DEBUG_TRANSMIT_OFF (0, flag);
+	else
+		TERM_DEBUG_TRANSMIT_OFF (0, flag);
 
-  return CMD_SUCCESS;
-}
+	return CMD_SUCCESS;
+}// 
+
 
 ALIAS (no_debug_eigrp_transmit,
        no_debug_eigrp_transmit_detail_cmd,

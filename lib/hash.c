@@ -26,40 +26,39 @@
 
 /* Allocate a new hash.  */
 struct hash *
-hash_create_size (unsigned int size, unsigned int (*hash_key) (void *),
+hash_create_size (unsigned int size, unsigned int (*hash_key) (const void *),
                                      int (*hash_cmp) (const void *, const void *))
 {
-  struct hash *hash;
+	struct hash *hash;
 
-  assert ((size & (size-1)) == 0);
-  hash = XMALLOC (MTYPE_HASH, sizeof (struct hash));
-  hash->index = XCALLOC (MTYPE_HASH_INDEX,
-			 sizeof (struct hash_backet *) * size);
-  hash->size = size;
-  hash->no_expand = 0;
-  hash->hash_key = hash_key;
-  hash->hash_cmp = hash_cmp;
-  hash->count = 0;
+	assert ((size & (size-1)) == 0);
+	hash = XMALLOC (MTYPE_HASH, sizeof (struct hash));
+	hash->index = XCALLOC (MTYPE_HASH_INDEX, sizeof (struct hash_backet *) * size);
+	hash->size = size;
+	hash->no_expand = 0;
+	hash->hash_key = hash_key;
+	hash->hash_cmp = hash_cmp;
+	hash->count = 0;
 
-  return hash;
-}
+	return hash;
+}// hash_create_size
 
 /* Allocate a new hash with default hash size.  */
 struct hash *
-hash_create (unsigned int (*hash_key) (void *), 
+hash_create (unsigned int (*hash_key) (const void *), 
              int (*hash_cmp) (const void *, const void *))
 {
-  return hash_create_size (HASH_INITIAL_SIZE, hash_key, hash_cmp);
+	return hash_create_size (HASH_INITIAL_SIZE, hash_key, hash_cmp);
 }
 
 /* Utility function for hash_get().  When this function is specified
    as alloc_func, return arugment as it is.  This function is used for
    intern already allocated value.  */
-void *
-hash_alloc_intern (void *arg)
-{
-  return arg;
-}
+//void *
+//hash_alloc_intern (const void *arg)
+//{
+//  return (void *)arg;
+//}
 
 /* Expand hash if the chain length exceeds the threshold. */
 static void hash_expand (struct hash *hash)
@@ -111,51 +110,95 @@ static void hash_expand (struct hash *hash)
    corresponding hash backet and alloc_func is specified, create new
    hash backet.  */
 void *
-hash_get (struct hash *hash, void *data, void * (*alloc_func) (void *))
+hash_get (struct hash *hash, const void *data, void * (*alloc_func) (const void *))
 {
-  unsigned int key;
-  unsigned int index;
-  void *newdata;
-  unsigned int len;
-  struct hash_backet *backet;
+	unsigned int key;
+	unsigned int index;
+	void *newdata;
+	unsigned int len;
+	struct hash_backet *backet;
 
-  key = (*hash->hash_key) (data);
-  index = key & (hash->size - 1);
-  len = 0;
+	key = (*hash->hash_key) (data);
+	index = key & (hash->size - 1);
+	len = 0;
 
-  for (backet = hash->index[index]; backet != NULL; backet = backet->next)
-    {
-      if (backet->key == key && (*hash->hash_cmp) (backet->data, data))
-	return backet->data;
-      ++len;
-    }
-
-  if (alloc_func)
-    {
-      newdata = (*alloc_func) (data);
-      if (newdata == NULL)
-	return NULL;
-
-      if (len > HASH_THRESHOLD && !hash->no_expand)
+	for (backet = hash->index[index]; backet != NULL; backet = backet->next)
 	{
-	  hash_expand (hash);
-	  index = key & (hash->size - 1);
+		if (backet->key == key && (*hash->hash_cmp) (backet->data, data))
+			return backet->data;
+		++len;
 	}
 
-      backet = XMALLOC (MTYPE_HASH_BACKET, sizeof (struct hash_backet));
-      backet->data = newdata;
-      backet->key = key;
-      backet->next = hash->index[index];
-      hash->index[index] = backet;
-      hash->count++;
-      return backet->data;
-    }
-  return NULL;
-}
+	if (alloc_func)
+	{
+		newdata = (*alloc_func) (data);
+		if (newdata == NULL)
+			return NULL;
+
+		if (len > HASH_THRESHOLD && !hash->no_expand)
+		{
+			hash_expand (hash);
+			index = key & (hash->size - 1);
+		}
+
+		backet = XMALLOC (MTYPE_HASH_BACKET, sizeof (struct hash_backet));
+		backet->data = newdata;
+		backet->key = key;
+		backet->next = hash->index[index];
+		hash->index[index] = backet;
+		hash->count++;
+		return backet->data;
+	}
+	return NULL;
+}// hash_get
+
+
+/* Lookup and return hash backet in hash.  If there is no
+   corresponding hash backet and alloc_func is specified, create new
+   hash backet.  */
+void *
+hash_get2 (struct hash *hash, const void *data, void * newdata)
+{
+	unsigned int key;
+	unsigned int index;
+//	void *newdata;
+	unsigned int len;
+	struct hash_backet *backet;
+
+	key = (*hash->hash_key) (data);
+	index = key & (hash->size - 1);
+	len = 0;
+
+	for (backet = hash->index[index]; backet != NULL; backet = backet->next)
+	{
+		if (backet->key == key && (*hash->hash_cmp) (backet->data, data))
+			return backet->data;
+		++len;
+	}
+
+	if (newdata)
+	{
+		if (len > HASH_THRESHOLD && !hash->no_expand)
+		{
+			hash_expand (hash);
+			index = key & (hash->size - 1);
+		}
+
+		backet = XMALLOC (MTYPE_HASH_BACKET, sizeof (struct hash_backet));
+		backet->data = newdata;
+		backet->key = key;
+		backet->next = hash->index[index];
+		hash->index[index] = backet;
+		hash->count++;
+		return backet->data;
+	}
+	return NULL;
+}// hash_get2
+
 
 /* Hash lookup.  */
 void *
-hash_lookup (struct hash *hash, void *data)
+hash_lookup (struct hash *hash, const void *data)
 {
   return hash_get (hash, data, NULL);
 }
