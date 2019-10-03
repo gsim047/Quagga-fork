@@ -99,9 +99,9 @@ ospf6_top_route_hook_remove (struct ospf6_route *route)
 static void
 ospf6_top_brouter_hook_add (struct ospf6_route *route)
 {
-  ospf6_abr_examin_brouter (ADV_ROUTER_IN_PREFIX (&route->prefix));
-  ospf6_asbr_lsentry_add (route);
-  ospf6_abr_originate_summary (route);
+	ospf6_abr_examin_brouter (ADV_ROUTER_IN_PREFIX (&route->prefix));
+	ospf6_asbr_lsentry_add (route);
+	ospf6_abr_originate_summary (route);
 }
 
 static void

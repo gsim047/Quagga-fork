@@ -43,6 +43,7 @@
 #include "zclient.h"
 #include "keychain.h"
 #include "linklist.h"
+#include "distribute.h"
 
 #include "eigrpd/eigrp_structs.h"
 #include "eigrpd/eigrpd.h"
