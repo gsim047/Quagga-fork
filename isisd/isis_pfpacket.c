@@ -323,7 +323,7 @@ isis_send_pdu_bcast (struct isis_circuit *circuit, int level)
   /* we need to do the LLC in here because of P2P circuits, which will
    * not need it
    */
-  int written = 1;
+  int written;
   struct sockaddr_ll sa;
 
   stream_set_getp (circuit->snd_stream, 0);
@@ -364,7 +364,7 @@ isis_send_pdu_bcast (struct isis_circuit *circuit, int level)
 int
 isis_send_pdu_p2p (struct isis_circuit *circuit, int level)
 {
-  int written = 1;
+  int written;
   struct sockaddr_ll sa;
 
   stream_set_getp (circuit->snd_stream, 0);

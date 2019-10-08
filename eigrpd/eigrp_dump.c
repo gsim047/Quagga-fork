@@ -449,7 +449,7 @@ show_ip_eigrp_prefix_entry (struct vty *vty, struct eigrp_prefix_entry *tn)
   vty_out (vty, "%-3c",(tn->state > 0) ? 'A' : 'P');
   vty_out (vty, "%s/%u, ",inet_ntoa (tn->destination_ipv4->prefix),tn->destination_ipv4->prefixlen);
   vty_out (vty, "%u successors, ",eigrp_topology_get_successor(tn)->count);
-  vty_out (vty, "FD is %u, serno: %lu %s",tn->fdistance, tn->serno, VTY_NEWLINE);
+  vty_out (vty, "FD is %u, serno: %lu %s",tn->fdistance, (long unsigned)tn->serno, VTY_NEWLINE);
 
 }
 
@@ -527,9 +527,9 @@ DEFUN (debug_eigrp_transmit,
        "packet received\n"
        "all packets\n")
 {
-  int type = 0;
+//  int type = 0;
   int flag = 0;
-  int i;
+//  int i;
 
   /* send or recv. */
   if (strncmp (argv[0], "s", 1) == 0)
@@ -580,9 +580,9 @@ DEFUN (no_debug_eigrp_transmit,
        "packet received\n"
        "all packets\n")
 {
-	int type = 0;
+//	int type = 0;
 	int flag = 0;
-	int i;
+//	int i;
 
 	/* send or recv. */
 	if (strncmp (argv[0], "s", 1) == 0)

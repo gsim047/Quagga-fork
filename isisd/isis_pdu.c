@@ -1984,6 +1984,8 @@ process_psnp (int level, struct isis_circuit *circuit, u_char * ssnpa)
  *           0x38	0x08	0x47	0x00	0x01	0x00	0x02	0x00
  *           0x03	0x00	0x81	0x01	0xcc
  */
+// not used
+/*
 static int
 process_is_hello (struct isis_circuit *circuit)
 {
@@ -2002,9 +2004,8 @@ process_is_hello (struct isis_circuit *circuit)
                         stream_get_endp (circuit->rcv_stream));
     }
 
-  /* In this point in time we are not yet able to handle is_hellos
-   * on lan - Sorry juniper...
-   */
+  // In this point in time we are not yet able to handle is_hellos
+  // on lan - Sorry juniper...
   if (circuit->circ_type == CIRCUIT_T_BROADCAST)
     return retval;
 
@@ -2013,7 +2014,7 @@ process_is_hello (struct isis_circuit *circuit)
   adj = circuit->u.p2p.neighbor;
   if (!adj)
     {
-      /* 8.2.2 */
+      // 8.2.2
       adj = isis_new_adj (sysid, NULL, 0, circuit);
       if (adj == NULL)
 	return ISIS_ERROR;
@@ -2022,41 +2023,42 @@ process_is_hello (struct isis_circuit *circuit)
       adj->sys_type = ISIS_SYSTYPE_UNKNOWN;
       circuit->u.p2p.neighbor = adj;
     }
-  /* 8.2.2 a) */
+  // 8.2.2 a)
   if ((adj->adj_state == ISIS_ADJ_UP) && memcmp (adj->sysid, sysid,
 						 ISIS_SYS_ID_LEN))
     {
-      /* 8.2.2 a) 1) FIXME: adjStateChange(down) event */
-      /* 8.2.2 a) 2) delete the adj */
+      // 8.2.2 a) 1) FIXME: adjStateChange(down) event
+      // 8.2.2 a) 2) delete the adj
       XFREE (MTYPE_ISIS_ADJACENCY, adj);
-      /* 8.2.2 a) 3) create a new adj */
+      // 8.2.2 a) 3) create a new adj
       adj = isis_new_adj (sysid, NULL, 0, circuit);
       if (adj == NULL)
 	return ISIS_ERROR;
 
-      /* 8.2.2 a) 3) i */
+      // 8.2.2 a) 3) i
       isis_adj_state_change (adj, ISIS_ADJ_INITIALIZING, NULL);
-      /* 8.2.2 a) 3) ii */
+      // 8.2.2 a) 3) ii
       adj->sys_type = ISIS_SYSTYPE_UNKNOWN;
-      /* 8.2.2 a) 4) quite meaningless */
+      // 8.2.2 a) 4) quite meaningless
     }
-  /* 8.2.2 b) ignore on condition */
+  // 8.2.2 b) ignore on condition
   if ((adj->adj_state == ISIS_ADJ_INITIALIZING) &&
       (adj->sys_type == ISIS_SYSTYPE_IS))
     {
-      /* do nothing */
+      // do nothing
     }
   else
     {
-      /* 8.2.2 c) respond with a p2p IIH */
+      // 8.2.2 c) respond with a p2p IIH
       send_hello (circuit, 1);
     }
-  /* 8.2.2 d) type is IS */
+  // 8.2.2 d) type is IS
   adj->sys_type = ISIS_SYSTYPE_IS;
-  /* 8.2.2 e) FIXME: Circuit type of? */
+  // 8.2.2 e) FIXME: Circuit type of?
 
   return retval;
 }
+*/
 
 /*
  * PDU Dispatcher

@@ -209,7 +209,7 @@ DEFUN (eigrp_router_id,
        "Router ID for this EIGRP process\n"
        "EIGRP Router-ID in IP address format\n")
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -223,7 +223,7 @@ DEFUN (no_eigrp_router_id,
        "Router ID for this EIGRP process\n"
        "EIGRP Router-ID in IP address format\n")
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -235,7 +235,7 @@ DEFUN (eigrp_passive_interface,
        "Suppress routing updates on an interface\n"
        INT_TYPES_DESC)
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -248,7 +248,7 @@ DEFUN (no_eigrp_passive_interface,
        "Suppress routing updates on an interface\n"
        INT_TYPES_DESC)
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -262,7 +262,7 @@ DEFUN (eigrp_timers_active,
        "Active state time limit in minutes\n"
        "Disable time limit for active state\n")
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -277,7 +277,7 @@ DEFUN (no_eigrp_timers_active,
        "Active state time limit in minutes\n"
        "Disable time limit for active state\n")
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -295,7 +295,7 @@ DEFUN (eigrp_metric_weights,
        "K4\n"
        "K5\n")
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -312,7 +312,7 @@ DEFUN (no_eigrp_metric_weights,
        "K4\n"
        "K5\n")
 {
-  struct eigrp *eigrp = vty->index;
+//  struct eigrp *eigrp = vty->index;
   /*TODO: */
 
   return CMD_SUCCESS;
@@ -372,8 +372,8 @@ DEFUN (eigrp_neighbor,
        "Neighbor address\n"
        INT_TYPES_DESC)
 {
-  struct eigrp *eigrp = vty->index;
-  struct prefix_ipv4 p;
+//  struct eigrp *eigrp = vty->index;
+//  struct prefix_ipv4 p;
 
   return CMD_SUCCESS;
 }
@@ -386,8 +386,8 @@ DEFUN (no_eigrp_neighbor,
        "Neighbor address\n"
        INT_TYPES_DESC)
 {
-  struct eigrp *eigrp = vty->index;
-  struct prefix_ipv4 p;
+//  struct eigrp *eigrp = vty->index;
+//  struct prefix_ipv4 p;
 
   return CMD_SUCCESS;
 }
@@ -584,11 +584,11 @@ DEFUN (eigrp_if_delay,
 {
   struct eigrp *eigrp;
   u_int32_t delay;
-  struct listnode *node, *nnode, *node2, *nnode2;
-  struct eigrp_interface *ei;
+//  struct listnode *node, *nnode, *node2, *nnode2;
+//  struct eigrp_interface *ei;
   struct interface *ifp;
-  struct eigrp_prefix_entry *pe;
-  struct eigrp_neighbor_entry *ne;
+//  struct eigrp_prefix_entry *pe;
+//  struct eigrp_neighbor_entry *ne;
 
   eigrp = eigrp_lookup ();
   if (eigrp == NULL)
@@ -622,11 +622,11 @@ DEFUN (no_eigrp_if_delay,
        "Specify interface throughput delay\n")
 {
   struct eigrp *eigrp;
-  struct listnode *node, *nnode, *node2, *nnode2;
-  struct eigrp_interface *ei;
+//  struct listnode *node, *nnode, *node2, *nnode2;
+//  struct eigrp_interface *ei;
   struct interface *ifp;
-  struct eigrp_prefix_entry *pe;
-  struct eigrp_neighbor_entry *ne;
+//  struct eigrp_prefix_entry *pe;
+//  struct eigrp_neighbor_entry *ne;
 
   eigrp = eigrp_lookup ();
   if (eigrp == NULL)
@@ -650,11 +650,11 @@ DEFUN (eigrp_if_bandwidth,
 {
   u_int32_t bandwidth;
   struct eigrp *eigrp;
-  struct eigrp_interface *ei;
-  struct listnode *node, *nnode, *node2, *nnode2;
+//  struct eigrp_interface *ei;
+//  struct listnode *node, *nnode, *node2, *nnode2;
   struct interface *ifp;
-  struct eigrp_prefix_entry *pe;
-  struct eigrp_neighbor_entry *ne;
+//  struct eigrp_prefix_entry *pe;
+//  struct eigrp_neighbor_entry *ne;
 
   eigrp = eigrp_lookup ();
   if (eigrp == NULL)

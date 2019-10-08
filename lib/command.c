@@ -2429,19 +2429,19 @@ cmd_complete_command_real (vector vline, struct vty *vty, int *status)
   vector_free (cmd_vector);
   cmd_matches_free(&matches);
 
-  /* No matched command */
-  if (vector_slot (matchvec, 0) == NULL)
-    {
-      vector_free (matchvec);
+	/* No matched command */
+	if (vector_slot (matchvec, 0) == NULL)
+	{
+		vector_free (matchvec);
 
-      /* In case of 'command \t' pattern.  Do you need '?' command at
-         the end of the line. */
-      if (vector_slot (vline, index) == '\0')
-	*status = CMD_ERR_NOTHING_TODO;
-      else
-	*status = CMD_ERR_NO_MATCH;
-      return NULL;
-    }
+		/* In case of 'command \t' pattern.  Do you need '?' command at
+		   the end of the line. */
+		if ( *((char*)(vector_slot (vline, index))) == '\0' )
+			*status = CMD_ERR_NOTHING_TODO;
+		else
+			*status = CMD_ERR_NO_MATCH;
+		return NULL;
+	}
 
   /* Only one matched */
   if (vector_slot (matchvec, 1) == NULL)

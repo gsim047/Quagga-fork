@@ -1374,6 +1374,8 @@ netlink_talk (struct nlmsghdr *n, struct nlsock *nl)
 }
 
 /* Routing table change via netlink interface. */
+// not used!
+/*
 static int
 netlink_route (int cmd, int family, void *dest, int length, void *gate,
                int index, int zebra_flags, int table)
@@ -1418,7 +1420,7 @@ netlink_route (int cmd, int family, void *dest, int length, void *gate,
           else if (zebra_flags & ZEBRA_FLAG_REJECT)
             req.r.rtm_type = RTN_UNREACHABLE;
           else
-            assert (RTN_BLACKHOLE != RTN_UNREACHABLE);  /* false */
+            assert (RTN_BLACKHOLE != RTN_UNREACHABLE);  // false
         }
       else
         req.r.rtm_type = RTN_UNICAST;
@@ -1435,17 +1437,18 @@ netlink_route (int cmd, int family, void *dest, int length, void *gate,
         addattr32 (&req.n, sizeof req, RTA_OIF, index);
     }
 
-  /* Destination netlink address. */
+  // Destination netlink address.
   memset (&snl, 0, sizeof snl);
   snl.nl_family = AF_NETLINK;
 
-  /* Talk to netlink socket. */
+  // Talk to netlink socket.
   ret = netlink_talk (&req.n, &netlink_cmd);
   if (ret < 0)
     return -1;
 
   return 0;
 }
+*/
 
 /* This function takes a nexthop as argument and adds
  * the appropriate netlink attributes to an existing

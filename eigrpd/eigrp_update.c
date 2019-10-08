@@ -177,7 +177,7 @@ eigrp_update_receive (struct eigrp *eigrp, struct ip *iph, struct eigrp_header *
   u_char graceful_restart;
   u_char graceful_restart_final;
   struct list *nbr_prefixes;
-  int ret;
+//  int ret;
 
   /* increment statistics. */
   ei->update_in++;

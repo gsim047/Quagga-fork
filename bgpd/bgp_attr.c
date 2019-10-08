@@ -72,7 +72,8 @@ static const struct message attr_flag_str[] =
   /* bgp_attr_flags_diagnose() relies on this bit being last in this list */
   { BGP_ATTR_FLAG_EXTLEN,   "Extended Length" },
 };
-static const size_t attr_flag_str_max = array_size(attr_flag_str);
+// not used:
+//static const size_t attr_flag_str_max = array_size(attr_flag_str);
 
 static struct hash *cluster_hash;
 
@@ -228,6 +229,8 @@ transit_hash_alloc (const void *p)
 	return p;
 }*/
 
+// not used
+/*
 static struct transit *
 transit_intern (struct transit *transit)
 {
@@ -241,6 +244,7 @@ transit_intern (struct transit *transit)
 
 	return find;
 }
+*/
 
 void
 transit_unintern (struct transit *transit)

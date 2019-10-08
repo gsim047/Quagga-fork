@@ -523,12 +523,12 @@ isis_zebra_read_ipv4 (int command, struct zclient *zclient,
   struct stream *stream;
   struct zapi_ipv4 api;
   struct prefix_ipv4 p;
-  unsigned long ifindex;
-  struct in_addr nexthop;
+//  unsigned long ifindex;
+//  struct in_addr nexthop;
 
   stream = zclient->ibuf;
   memset (&p, 0, sizeof (struct prefix_ipv4));
-  ifindex = 0;
+//  ifindex = 0;
 
   api.type = stream_getc (stream);
   api.flags = stream_getc (stream);
@@ -541,12 +541,12 @@ isis_zebra_read_ipv4 (int command, struct zclient *zclient,
   if (CHECK_FLAG (api.message, ZAPI_MESSAGE_NEXTHOP))
     {
       api.nexthop_num = stream_getc (stream);
-      nexthop.s_addr = stream_get_ipv4 (stream);
+//      nexthop.s_addr = stream_get_ipv4 (stream);
     }
   if (CHECK_FLAG (api.message, ZAPI_MESSAGE_IFINDEX))
     {
       api.ifindex_num = stream_getc (stream);
-      ifindex = stream_getl (stream);
+//      ifindex = stream_getl (stream);
     }
   if (CHECK_FLAG (api.message, ZAPI_MESSAGE_DISTANCE))
     api.distance = stream_getc (stream);

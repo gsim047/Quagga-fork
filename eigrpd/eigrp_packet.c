@@ -191,7 +191,8 @@ eigrp_check_md5_digest (struct stream *s, struct TLV_MD5_Authentication_Type *au
 	eigrph->checksum = 0;
 
 	auth_TLV =(struct TLV_MD5_Authentication_Type *) (s->data + EIGRP_HEADER_LEN);
-	memcpy(auth_TLV->digest, "0", sizeof(auth_TLV->digest));
+//	memcpy(auth_TLV->digest, "0", sizeof(auth_TLV->digest)); //???
+	memset(auth_TLV->digest, '0', sizeof(auth_TLV->digest));
 
 	ibuf = s->data;
 	cbuf = (char *)s->data;
@@ -258,6 +259,8 @@ eigrp_check_md5_digest (struct stream *s, struct TLV_MD5_Authentication_Type *au
 	return 1;
 }// 
 
+// not used
+/*
 static int
 strnzcpyn(char *dst, const char *src, int size)
 {
@@ -272,6 +275,7 @@ strnzcpyn(char *dst, const char *src, int size)
 
         return (dptr-dst)-1;
 }
+*/
 
 int
 eigrp_make_sha256_digest (struct eigrp_interface *ei, struct stream *s, u_char flags)
@@ -279,8 +283,8 @@ eigrp_make_sha256_digest (struct eigrp_interface *ei, struct stream *s, u_char f
 	struct key *key = NULL;
 	struct keychain *keychain;
 	char *source_ip;
-	int saved_len;
-	char saved_key[PLAINTEXT_LENGTH + 1];
+//	int saved_len;
+//	char saved_key[PLAINTEXT_LENGTH + 1];
 
 
 	unsigned char digest[EIGRP_AUTH_TYPE_SHA256_LEN];
