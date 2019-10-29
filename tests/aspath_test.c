@@ -1249,6 +1249,10 @@ cmp_test ()
     }
 }
 
+
+static char __none[256] = "none";
+
+
 static int
 handle_attr_test (struct aspath_tests *t)
 {
@@ -1265,7 +1269,7 @@ handle_attr_test (struct aspath_tests *t)
   peer.ibuf = stream_new (BGP_MAX_PACKET_SIZE);
   peer.obuf = stream_fifo_new ();
   peer.bgp = &bgp;
-  peer.host = (char *)"none";
+  peer.host = __none; //(char *)"none";
   peer.fd = -1;
   peer.cap = t->cap;
   

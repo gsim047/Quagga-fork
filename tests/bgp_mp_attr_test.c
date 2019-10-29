@@ -517,6 +517,9 @@ parse_test (struct peer *peer, struct test_segment *t, int type)
 static struct bgp *bgp;
 static as_t asn = 100;
 
+static char __foo[256] = "foo";
+
+
 int
 main (void)
 {
@@ -545,7 +548,7 @@ main (void)
     return -1;
   
   peer = peer_create_accept (bgp);
-  peer->host = "foo";
+  peer->host = __foo; //"foo";
   
   for (i = AFI_IP; i < AFI_MAX; i++)
     for (j = SAFI_UNICAST; j < SAFI_MAX; j++)

@@ -35,6 +35,10 @@ struct quagga_signal_t sigs[] =
 
 struct thread_master *master;
 
+int threadfunc (struct thread *thread);
+
+
+
 int
 threadfunc (struct thread *thread)
 {

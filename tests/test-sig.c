@@ -22,6 +22,12 @@
 #include "lib/log.h"
 #include "lib/memory.h"
 
+void sighup (void);
+void sigusr1 (void);
+void sigusr2 (void);
+
+
+
 void
 sighup (void)
 {
