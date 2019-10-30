@@ -39,6 +39,9 @@
 
 extern struct thread_master *master;
 
+void test_init(void);
+
+
 enum
 {
   ITERS_FIRST = 0,
@@ -139,7 +142,7 @@ DEFUN (clear_foo,
 }
 
 void
-test_init()
+test_init(void)
 {
   install_element (VIEW_NODE, &clear_foo_cmd);
 }

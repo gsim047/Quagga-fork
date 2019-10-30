@@ -30,6 +30,8 @@
 
 extern void test_init();
 
+int test_timer (struct thread *thread);
+
 struct thread_master *master;
 
 struct option longopts[] = 
@@ -52,6 +54,7 @@ DEFUN (daemon_exit,
 }
 
 static int timer_count;
+
 int
 test_timer (struct thread *thread)
 {

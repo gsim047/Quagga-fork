@@ -24,7 +24,7 @@
 #include <stream.h>
 #include <thread.h>
 
-static long int ham = 0xdeadbeefdeadbeef;
+static long long int ham = 0xdeadbeefdeadbeefLL;
 struct thread_master *master;
 
 static void

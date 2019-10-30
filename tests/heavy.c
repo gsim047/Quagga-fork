@@ -36,6 +36,9 @@
 #include "memory.h"
 #include <math.h>
 
+void test_init(void);
+
+
 enum
 {
   ITERS_FIRST = 0,
@@ -105,7 +108,7 @@ slow_vty_init()
 }
 
 void
-test_init()
+test_init(void)
 {
   slow_vty_init();
 }
